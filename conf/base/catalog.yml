@@ -2,3 +2,46 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+
+# Definition of the 10 datasets present from Olist 
+customer_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_customers_dataset.csv
+
+geolocation_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_geolocation_dataset.csv
+
+order_items_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_order_items_dataset.csv
+
+order_payments_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_order_payments_dataset.csv 
+
+order_reviews_dataset: 
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_order_reviews_dataset.csv  
+
+order_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_orders_dataset.csv 
+
+product_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_products_dataset.csv
+
+seller_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/olist_sellers_dataset.csv
+
+product_category_dataset:
+  type: pandas.CSVDataSet
+  filepath: data/raw/product_category_name_translation.csv
+
+datadict:
+  type: pandas.ExcelDataSet
+  filepath: data/raw/olist_datadict.xlsx
+
