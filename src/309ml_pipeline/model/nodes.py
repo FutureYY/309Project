@@ -20,6 +20,9 @@ os.makedirs(model_dir, exist_ok=True)
 classifier_rfc = RandomForestClassifier()
 classifier_blr = LogisticRegression()   
 
+
+#Function to process the data
+
 #spliting the data into test and train datasets. 
 def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     data_train = data.sample(
@@ -34,21 +37,23 @@ def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataF
     
     # return X_train, X_test, y_train, y_test 
     
-# def make_prediction_RC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
+    
+# Function to make predictions using Random Forest Classifier    
+def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
     
     # X_train_numpy = X_train.to_numpy()
-    # X_test_numpy = X_test.to_numpy()
+    X_test_numpy = X_test.to_numpy()
     
     # model_rfc = classifier_rfc.fit(X_train, y_train)
     # model_rfc.save(model_path)
     # print(f"Final model saved at: {model_path}")
     # joblib.dump(classifier_rfc, "classifier_rfc.jonlib")
     
-    
-# def make_prediction_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
+# Function to make predictions using Binary Logistic Regression    
+def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
     
     # X_train_numpy = X_train.to_numpy()
-    # X_test_numpy = X_test.to_numpy()
+    X_test_numpy = X_test.to_numpy()
     
     # model_blr = classifier_blr.
     # model_blr.save(model_path)
@@ -56,8 +61,8 @@ def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataF
     # joblib.dump(classifier_blr, "classifier_blr.jonlib")
     
     
-    
-def report_accuracy(y_pred: pd.Series, y_test: pd.Series, X_test: pd.DataFrame):
+# Function to report the accuracy of the models    
+def report_evaluation(y_pred: pd.Series, y_test: pd.Series, X_test: pd.DataFrame):
     accuracy_rfc = classifier_rfc.score(y_test, y_pred)
     accuracy_blr = classifier_blr.score(X_test, y_test)
     logger = logging.getlogger(__name__)
