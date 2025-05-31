@@ -1,12 +1,12 @@
-import logging, os
+import logging
+import os
 from typing import Any, Dict, Tuple
-import joblib
-import numpy as np
 import pandas as pd
 from  sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -15,57 +15,70 @@ model_dir = "../saved_model"
 model_path = os.path.join(model_dir, "best_model.pkl")
 os.makedirs(model_dir, exist_ok=True)
 
-
-# classifier for both binary_logistic regression and random forest clasification
-classifier_rfc = RandomForestClassifier()
-classifier_blr = LogisticRegression()   
-
-
-#Function to process the data
-
 #spliting the data into test and train datasets. 
 def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     data_train = data.sample(
         frac=parameters["train_fraction"], random_state=parameters["random_state"])
     
-    data_test = data.drop(data_train.index)    
-    
-    # X_train =
-    X_test = 2
-    # y_train =
-    # y_test = 
-    
     # return X_train, X_test, y_train, y_test 
     
     
-# Function to make predictions using Random Forest Classifier    
+# Function to train and predictions using Random Forest Classifier    
 def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
+    classifier_rfc = RandomForestClassifier()
+    classifier_rfc.fit(X_train, y_train)
+    y_pred_rfc = classifier_rfc.predict(X_test)
     
-    # X_train_numpy = X_train.to_numpy()
-    X_test_numpy = X_test.to_numpy()
+    return y_pred_rfc
     
-    # model_rfc = classifier_rfc.fit(X_train, y_train)
-    # model_rfc.save(model_path)
-    # print(f"Final model saved at: {model_path}")
-    # joblib.dump(classifier_rfc, "classifier_rfc.jonlib")
-    
-# Function to make predictions using Binary Logistic Regression    
+# Function to train and make predictions using Binary Logistic Regression    
 def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
+    classifier_blr = LogisticRegression()
+    classifier_blr.fit(X_train, y_train)
+    y_pred_blr = classifier_blr.predict(X_test)
     
-    # X_train_numpy = X_train.to_numpy()
-    X_test_numpy = X_test.to_numpy()
+    return y_pred_blr
     
-    # model_blr = classifier_blr.
-    # model_blr.save(model_path)
-    # print(f"Final model saved at: {model_path}")
-    # joblib.dump(classifier_blr, "classifier_blr.jonlib")
+#Function to train and make predictions using Gradient Boosting Classifier 
+def model_train_GBC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
+    classifier_gbc = GradientBoostingClassifier()
+    classifier_gbc.fit(X_train, y_train)
+    y_pred_gbc = classifier_gbc.predict(X_test)
     
+    return y_pred_gbc
+
+# Function to report the evalutation metrics of the models    
+def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series, 
+                      y_pred_gbc: pd.Series, y_test: pd.Series,
+                      X_test: pd.DataFrame):
     
-# Function to report the accuracy of the models    
-def report_evaluation(y_pred: pd.Series, y_test: pd.Series, X_test: pd.DataFrame):
-    accuracy_rfc = classifier_rfc.score(y_test, y_pred)
-    accuracy_blr = classifier_blr.score(X_test, y_test)
+    # Evalutation metrics -> Accuracy
+    accuracy_rfc = accuracy_score(y_test, y_pred_rfc)
+    accuracy_blr = accuracy_score(y_test, y_pred_blr)
+    accuracy_gbc = accuracy_score(y_test, y_pred_gbc)
+    
+    # Evalutation metrics -> Recall
+    recall_rfc = recall_score(y_test, y_pred_rfc)
+    recall_blr = recall_score(y_test, y_pred_blr)
+    recall_gbc = recall_score(y_test, y_pred_gbc)
+    
+    # Evalutation metrics -> Precision
+    precision_rfc = precision_score(y_test, y_pred_rfc)
+    precision_blr = precision_score(y_test, y_pred_blr)
+    precision_gbc = precision_score(y_test, y_pred_gbc)
+    
+    # Evalutation metrics -> F1_score
+    f1_score_rfc = f1_score(y_test, y_pred_rfc)
+    f1_score_blr = f1_score(y_test, y_pred_blr)
+    f1_score_gbc = f1_score(y_test, y_pred_gbc)
+    
+    # Evalutation metrics -> ROC-AUC
+    ROC_AUC_rfc = 0
+    ROC_AUC_blr = 0
+    ROC_AUC_gbc = 0
+     
+    # the logger info here is to display the evaluations results of the models
     logger = logging.getlogger(__name__)
-    # the logger info here is to display the accuracy of the models on the kedro pipeline when run. 
-    logger.info("The Random Forest classifer model has accurcy of %.3f on test data", accuracy_rfc)
-    logger.info("The Binary Logistic Regression model has accurcy of %.3f on test data", accuracy_blr)
+    logger.info(f"[RFC] Accuracy={accuracy_rfc:.3f}, Recall={recall_rfc:.3f}, Precision={precision_rfc:.3f}, F1_score={f1_score_rfc:.3f}, and ROC_AUC={ROC_AUC_rfc:.3f}")
+    logger.info(f"[BLR] Accuracy={accuracy_blr:.3f}, Recall={recall_blr:.3f}, Precision={precision_blr:.3f}, F1_score={f1_score_blr:.3f}, and ROC_AUC={ROC_AUC_blr:.3f}")
+    logger.info(f"[GBC] Accuracy={accuracy_gbc:.3f}, Recall={recall_gbc:.3f}, Precision={precision_gbc:.3f}, F1_score={f1_score_gbc:.3f}, and ROC_AUC={ROC_AUC_gbc:.3f}")
