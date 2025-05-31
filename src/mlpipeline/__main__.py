@@ -18,6 +18,7 @@ def main(*args, **kwargs) -> Any:
 
     run = find_run_command(package_name)
     return run(*args, **kwargs)
+    print('Pipeline is running')
 
 
 if __name__ == "__main__":

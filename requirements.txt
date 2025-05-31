@@ -10,3 +10,5 @@ seaborn~=0.12.1
 numpy>=1.21
 matplotlib>=3.5 
 kedro-datasets[pandas-csvdataset, pandas-exceldataset, pandas-parquetdataset, plotly-plotlydataset, plotly-jsondataset, matplotlib-matplotlibwriter]>=3.0
+
+-e .

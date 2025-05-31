@@ -10,10 +10,10 @@ dynamic = [ "version",]
 dependencies = [ "ipython>=8.10", "jupyterlab>=3.0", "notebook", "kedro~=0.19.12",]
 
 [project.scripts]
-309ml-pipeline = "309ml_pipeline.__main__:main"
+mlpipeline = "mlpipeline.__main__:main"
 
 [tool.kedro]
-package_name = "309ml_pipeline"
+package_name = "mlpipeline"
 project_name = "309ML_Pipeline"
 kedro_init_version = "0.19.12"
 tools = "['None']"
@@ -23,7 +23,7 @@ source_dir = "src"
 [project.entry-points."kedro.hooks"]
 
 [tool.setuptools.dynamic.version]
-attr = "309ml_pipeline.__version__"
+attr = "mlpipeline.__version__"
 
 [tool.setuptools.packages.find]
 where = [ "src",]
