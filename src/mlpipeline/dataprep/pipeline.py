@@ -19,7 +19,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 
             ),
             node(
-                func="feature_engineering",
+                func=feature_engineering,
                 #inputs=
                 #outputs= 
                 name="feature_engineering_node",

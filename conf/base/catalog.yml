@@ -5,3 +5,10 @@
 
 
 # Definition of the 10 datasets present from Olist 
+
+
+processed_data:
+  type: pandas.CSVDataSet
+  filepath: data/processed/processed_data.csv
+  save_args:
+    index: false

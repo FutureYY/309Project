@@ -15,25 +15,25 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=model_train_RFC,
                 inputs=["_____________-", "parameters:random_forest_params"],
-                outputs="y_pred", 
+                outputs="y_pred_rfc", 
                 name="model_train_RFC_node",
                 
             ),
             node(
                 func=model_train_BLR,
                 inputs=["_____________-", "parameters:binary_logistic_params"],
-                outputs="y_pred",
+                outputs="y_pred_blr",
                 name="model_train_BLR_node",
             ),
             node(
                 function=model_train_GBC,
                 inputs=["_____________-", "parameters:gradient_boosting_params"],
-                outputs="y_pred",
+                outputs="y_pred_gbc",
                 name="model_train_GBC_node",
             ),
             node(
                 func=report_evaluation,
-                inputs=["y_pred", "y_test"],
+                inputs=["y_pred_gbc", "y_pred_blr", "y_pred_rfc", "y_test"],
                 outputs=None,
                 name="report_evaluation_node",
             ), 

@@ -1,5 +1,7 @@
 # Common training parameters for the models
 train_fraction: 0.8
+random_state: 42
+
 
 # Parameters for each model type
 random_forest_params:
@@ -19,3 +21,7 @@ gradient_boosting_params:
   SEED: 23
   learning_rate: 0.05
   random_state: 23
+  max_features: 5
+
+  
+

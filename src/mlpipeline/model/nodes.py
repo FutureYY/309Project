@@ -1,5 +1,4 @@
-import logging
-import os
+import logging, os
 from typing import Any, Dict, Tuple
 import pandas as pd
 from  sklearn.model_selection import train_test_split
@@ -10,38 +9,43 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import warnings
 warnings.filterwarnings("ignore")
 
+classifier_rfc = RandomForestClassifier()
+classifier_blr = LogisticRegression()
+classifier_gbc = GradientBoostingClassifier()
+
 # Create a directory to save model
 model_dir = "../saved_model"
 model_path = os.path.join(model_dir, "best_model.pkl")
 os.makedirs(model_dir, exist_ok=True)
 
-#spliting the data into test and train datasets. 
-def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+# Split dataset -> First Assumption 
+def split_data_A(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     data_train = data.sample(
         frac=parameters["train_fraction"], random_state=parameters["random_state"])
+    # return X_train_A, X_test_A, y_train_A, y_test_A 
+
+# Split dataset -> Second Assumption  
+def split_data_B(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    data_train = data.sample(
+        frac=parameters["train_fraction"], random_state=parameters["random_state"])
+    # return X_train_B, X_test_B, y_train_B, y_test_B 
     
-    # return X_train, X_test, y_train, y_test 
-    
-    
-# Function to train and predictions using Random Forest Classifier    
-def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
-    classifier_rfc = RandomForestClassifier()
+# Train and Predictions -> Random Forest Classifier    
+def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.Series:
     classifier_rfc.fit(X_train, y_train)
     y_pred_rfc = classifier_rfc.predict(X_test)
     
     return y_pred_rfc
     
-# Function to train and make predictions using Binary Logistic Regression    
-def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
-    classifier_blr = LogisticRegression()
+# Train and Predictions -> Binary Logistic Regression    
+def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.Series:
     classifier_blr.fit(X_train, y_train)
     y_pred_blr = classifier_blr.predict(X_test)
     
     return y_pred_blr
     
-#Function to train and make predictions using Gradient Boosting Classifier 
-def model_train_GBC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.series:
-    classifier_gbc = GradientBoostingClassifier()
+# Train and Predictions -> Gradient Boosting Classifier 
+def model_train_GBC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.Series:
     classifier_gbc.fit(X_train, y_train)
     y_pred_gbc = classifier_gbc.predict(X_test)
     
@@ -52,29 +56,25 @@ def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series,
                       y_pred_gbc: pd.Series, y_test: pd.Series,
                       X_test: pd.DataFrame):
     
-    # Evalutation metrics -> Accuracy
+    # Evalutation metrics -> Random Forest Classifier
     accuracy_rfc = accuracy_score(y_test, y_pred_rfc)
-    accuracy_blr = accuracy_score(y_test, y_pred_blr)
-    accuracy_gbc = accuracy_score(y_test, y_pred_gbc)
-    
-    # Evalutation metrics -> Recall
     recall_rfc = recall_score(y_test, y_pred_rfc)
-    recall_blr = recall_score(y_test, y_pred_blr)
-    recall_gbc = recall_score(y_test, y_pred_gbc)
-    
-    # Evalutation metrics -> Precision
     precision_rfc = precision_score(y_test, y_pred_rfc)
-    precision_blr = precision_score(y_test, y_pred_blr)
-    precision_gbc = precision_score(y_test, y_pred_gbc)
-    
-    # Evalutation metrics -> F1_score
     f1_score_rfc = f1_score(y_test, y_pred_rfc)
-    f1_score_blr = f1_score(y_test, y_pred_blr)
-    f1_score_gbc = f1_score(y_test, y_pred_gbc)
-    
-    # Evalutation metrics -> ROC-AUC
     ROC_AUC_rfc = 0
+
+    # Evalutation metrics -> Binary Logistic Regression
+    accuracy_blr = accuracy_score(y_test, y_pred_blr)
+    recall_blr = recall_score(y_test, y_pred_blr)
+    precision_blr = precision_score(y_test, y_pred_blr)
+    f1_score_blr = f1_score(y_test, y_pred_blr)
     ROC_AUC_blr = 0
+
+    # Evalutation metrics -> Gradient Boosting Classifier  
+    accuracy_gbc = accuracy_score(y_test, y_pred_gbc)
+    recall_gbc = recall_score(y_test, y_pred_gbc)
+    precision_gbc = precision_score(y_test, y_pred_gbc)
+    f1_score_gbc = f1_score(y_test, y_pred_gbc)
     ROC_AUC_gbc = 0
      
     # the logger info here is to display the evaluations results of the models
