@@ -100,7 +100,7 @@ def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series,
      
     # the logger info here is to display the evaluations results of the models
     logger = logging.getLogger(__name__)
-    logger.info(f"[RFC] Accuracy={accuracy_rfc:.3f}, ROC_AUC={ROC_AUC_rfc:.3f} and Classification_Report= {classification_report_rfc}")
-    logger.info(f"[BLR] Accuracy={accuracy_blr:.3f}, ROC_AUC={ROC_AUC_blr:.3f} and Classification_Report= {classification_report_blr}")
-    logger.info(f"[GBC] Accuracy={accuracy_gbc:.3f}, ROC_AUC={ROC_AUC_gbc:.3f} and Classification_Report= {classification_report_gbc}")
+    logger.info(f"[Random Forest Classifier] Accuracy={accuracy_rfc:.3f}, ROC_AUC={ROC_AUC_rfc:.3f} and Classification_Report= {classification_report_rfc}")
+    logger.info(f"[Binary Logistic Regression] Accuracy={accuracy_blr:.3f}, ROC_AUC={ROC_AUC_blr:.3f} and Classification_Report= {classification_report_blr}")
+    logger.info(f"[Gradient Boosting Classifier] Accuracy={accuracy_gbc:.3f}, ROC_AUC={ROC_AUC_gbc:.3f} and Classification_Report= {classification_report_gbc}")
 
