@@ -1,7 +1,8 @@
 # Common training parameters for the models
-train_fraction: 0.8
-random_state: 42
-
+split_data: 
+  train_fraction: 0.8
+  random_state: 42
+  target_column: 'is_repeated_buyers'
 
 # Parameters for each model type
 random_forest_params:
@@ -23,5 +24,5 @@ gradient_boosting_params:
   random_state: 23
   max_features: 5
 
-  
+
 
