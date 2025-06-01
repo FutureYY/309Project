@@ -3,6 +3,7 @@ from cleaned_data import df_orders
 from pyspark.sql.functions import col, round, month, hour, avg, when
 
 # calculate time for each order to be delivered, from order purchased to order delivered time
+
 def time_taken_to_deliver(df):
   delivered_orders = df_orders.filter(df_orders.order_status == 'delivered')
 

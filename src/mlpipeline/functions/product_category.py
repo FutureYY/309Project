@@ -3,6 +3,8 @@ from pyspark.sql.functions import lower, trim, countDistinct, col, when, sum as 
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
 
+# get product category in english by combining with df_order_items
+
 def get_category_in_english(df_order_items, df_products):
 
     df_products_clean = df_products.withColumn(
@@ -32,8 +34,9 @@ def get_category_in_english(df_order_items, df_products):
 
 # group categories that contribute little to the overall percentage sales as 'others'
 # do one hot encoding on all the categories so that the model can process it
+
 def group_categories_by_sales_with_ohe(df, category_col="product_category_name_english", value_col="price", threshold=0.8):
-    
+
     # Step 1: Calculate total sales per category
     sales_per_category = df.groupBy(category_col) \
         .agg(spark_sum(value_col).alias("total_sales")) \
