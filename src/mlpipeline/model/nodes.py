@@ -1,7 +1,6 @@
 import logging, os
 from typing import Any, Dict, Tuple
 import pandas as pd
-from  sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedShuffleSplit, KFold
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -23,43 +22,52 @@ KF = KFold(n_splits=5, random_state=42, shuffle=True)
 
 # Split dataset -> First Assumption 
 def split_data_A(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    X = data.drop(columns=parameters["target_column"])
-    y = data[parameters["target_column"]]
-    
-    sss = StratifiedShuffleSplit(
-        n_splits=1,
-        train_size=parameters["train_fraction"], random_state=parameters["random_state"])
-    
-    for train_idx, test_idx in sss.split(X, y):
-        data_train_A = data.iloc[train_idx]
-        data_test_A = data.iloc[test_idx]
+    target_column = parameters["target_column"]
+    X = data.drop(columns=target_column)    
+    y = data[target_column]
 
-    X_train_A = data_train_A.drop(columns=parameters["target_column"])
-    X_test_A = data_test_A.drop(columns=parameters["target_column"])
-    y_train_A = data_train_A[parameters["target_column"]]
-    y_test_A = data_test_A[parameters["target_column"]]
-
-    return X_train_A, X_test_A, y_train_A, y_test_A
-
+    # Split data into train and test first
+    sss1 = StratifiedShuffleSplit(n_splits=1, train_size=parameters["train_fraction"], random_state=parameters["random_state"])
+    for train_idx, test_idx in sss1.split(X, y):
+        X_train_A = X.iloc[train_idx]
+        X_test_A = X.iloc[test_idx]
+        
+        y_train_A = y.iloc[train_idx]
+        y_test_A = y.iloc[test_idx]
+        
+     # Split the 30% of test into test and validation   
+    sss2 = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=parameters["random_state"])
+    for test_idx, val_idx in sss2.split(X_test_A, y_test_A):
+        X_test_A = X_test_A.iloc[test_idx]
+        X_val_A = X_test_A.iloc[val_idx]
+        
+        y_test_A = y_test_A.iloc[test_idx]
+        y_val_A = y_test_A.iloc[val_idx]
+        
+    return X_train_A, X_test_A, X_val_A, y_train_A, y_test_A, y_val_A  
+        
 # Split dataset -> Second Assumption  
 def split_data_B(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     X = data.drop(columns=parameters["target_column"])
     y = data[parameters["target_column"]]
     
-    sss = StratifiedShuffleSplit(
-        n_splits=1,
-        frac=parameters["train_fraction"], random_state=parameters["random_state"])
-    
-    for train_idx, test_idx in sss.split(X, y):
-        data_train_B = data.iloc[train_idx]
-        data_test_B = data.iloc[test_idx]
-    
-    X_train_B = data_train_B.drop(columns=parameters["target_column"])
-    X_test_B = data_test_B.drop(columns=parameters["target_column"])
-    y_train_B = data_train_B[parameters["target_column"]]
-    y_test_B = data_test_B[parameters["target_column"]]
+    sss3 = StratifiedShuffleSplit(n_splits=1, train_size=parameters["train_fraction"], random_state=parameters["random_state"])
+    for train_idx, test_idx in sss3.split(X, y):
+        X_train_B = X.iloc[train_idx]
+        X_test_B = X.iloc[test_idx]
+        
+        y_train_B = y.iloc[train_idx]
+        y_test_B = y.iloc[test_idx]
+        
+    sss4 = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=parameters["random_state"])
+    for test_idx, val_idx in sss4.split(X_test_B, y_test_B):
+        X_test_B = X_test_B.iloc[test_idx]
+        X_val_B = X_test_B.iloc[val_idx]
+        
+        y_test_B = y_test_B.iloc[test_idx]
+        y_val_B = y_test_B.iloc[val_idx]    
 
-    return X_train_B, X_test_B, y_train_B, y_test_B 
+    return X_train_B, X_test_B, X_val_B, y_train_B, y_test_B, y_val_B 
     
 # Train and Predictions -> Random Forest Classifier    
 def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.Series:

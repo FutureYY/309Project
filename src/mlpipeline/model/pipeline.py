@@ -9,14 +9,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=split_data_A,
                 inputs=["processed_data_A", "parameters:split_data"],
-                outputs=["X_train", "X_test", "y_train", "y_test"],
+                outputs=["X_train_A", "X_test_A", "X_val_A", "y_train_A", "y_test_A", "y_val_A"],
                 name="split_data_A_node",
             ),
             
             node(
                 func=split_data_B,
                 inputs=["processed_data_B", "parameters:split_data"],
-                outputs=["X_train", "X_test", "y_train", "y_test"],
+                outputs=["X_train_B", "X_test_B", "X_val_B", "y_train_B", "y_test_B", "y_val_B"],
                 name="split_data_B_node",
             ),
             
