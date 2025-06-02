@@ -1,6 +1,6 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
-from .nodes import target_dataset_A, target_dataset_B, feature_engineering
+from .nodes import target_dataset_A, target_dataset_B
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -17,13 +17,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["processed_data"],
                 outputs= ["processed_data_B"],
                 name="target_dataset_B_node",
-            ),
-            
-            node(
-                func=feature_engineering,
-                #inputs=
-                #outputs= 
-                name="feature_engineering_node",
             ),
         ]
     )

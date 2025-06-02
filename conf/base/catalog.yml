@@ -5,41 +5,65 @@
 
 
 # Definition of the 10 datasets present from Olist 
-
-
-processed_data:
+df_customers: #customer_dataset
   type: pandas.CSVDataSet
-  filepath: data/processed/processed_data.csv
+  filepath: data/data_cleaned/.csv
   save_args:
     index: false
 
-processed_data_A:
+df_geolocation: #geolocation_dataset
   type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_A.csv
+  filepath: data/data_cleaned/.csv
   save_args:
     index: false
 
-processed_data_B:
+df_order_items: #order_items_dataset
   type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
+  filepath: data/data_cleaned/.csv
   save_args:
     index: false
 
-processed_data_B:
+df_order_payments: #order_payments_dataset
   type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
+  filepath: data/data_cleaned/.csv
   save_args:
     index: false
 
-processed_data_B:
+
+df_order_reviews: #order_reviews_dataset
   type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
+  filepath: data/data_cleaned/.csv
   save_args:
     index: false    
 
+df_orders: #orders_dataset
+  type: pandas.CSVDataSet
+  filepath: data/data_cleaned/.csv
+  save_args:
+    index: false
+
+df_products: #product_dataset
+  type: pandas.CSVDataSet
+  filepath: data/data_cleaned/.csv
+  save_args:
+    index: false
+
+df_sellers: #sellers_dataset
+  type: pandas.CSVDataSet
+  filepath: data/data_cleaned/.csv
+  save_args:
+    index: false
+
+df_product_category: #product_category_name_translations_dataset
+  type: pandas.CSVDataSet
+  filepath: data/data_cleaned/.csv
+  save_args:
+    index: false
+
+# Definition of the datasets after processing
 processed_data:
   type: pandas.CSVDataSet
-  filepath: data/processed/processed_data.csv
+  filepath: data/data_processed/processed_data.csv
   save_args:
     index: false
 
@@ -47,19 +71,7 @@ processed_data_A:
   type: pandas.CSVDataSet
   filepath: data/data_processed/processed_data_A.csv
   save_args:
-    index: false
-
-processed_data_B:
-  type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
-  save_args:
-    index: false
-
-processed_data_B:
-  type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
-  save_args:
-    index: false
+    index: false  
 
 processed_data_B:
   type: pandas.CSVDataSet
