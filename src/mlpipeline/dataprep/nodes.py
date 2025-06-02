@@ -5,7 +5,7 @@ from typing import Dict, Any, Tuple
 dataset = pd.read_csv("data/processed_data.csv")
 
 def target_dataset_A(): 
-    target_A = dataset["installment_value", "High_installment_flag", "user_voucher", "category_grouped", "is_repeat_buyer"]
+    target_A = dataset["installment_value", "High_installment_flag", "used_voucher", "category_grouped", "is_repeat_buyer"]
     target_A.to_csv("data/processed_data_A.csv", index=False)
     
 

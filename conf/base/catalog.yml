@@ -24,3 +24,45 @@ processed_data_B:
   filepath: data/data_processed/processed_data_B.csv
   save_args:
     index: false
+
+processed_data_B:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_B.csv
+  save_args:
+    index: false
+
+processed_data_B:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_B.csv
+  save_args:
+    index: false    
+
+processed_data:
+  type: pandas.CSVDataSet
+  filepath: data/processed/processed_data.csv
+  save_args:
+    index: false
+
+processed_data_A:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_A.csv
+  save_args:
+    index: false
+
+processed_data_B:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_B.csv
+  save_args:
+    index: false
+
+processed_data_B:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_B.csv
+  save_args:
+    index: false
+
+processed_data_B:
+  type: pandas.CSVDataSet
+  filepath: data/data_processed/processed_data_B.csv
+  save_args:
+    index: false    
