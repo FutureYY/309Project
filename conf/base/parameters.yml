@@ -16,7 +16,6 @@ binary_logistic_params:
   max_iter: 200
   random_state: 42
 
-
 gradient_boosting_params:
   n_estimators: 100
   SEED: 23

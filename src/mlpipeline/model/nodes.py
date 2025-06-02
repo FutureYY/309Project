@@ -23,23 +23,37 @@ KF = KFold(n_splits=5, random_state=42, shuffle=True)
 
 # Split dataset -> First Assumption 
 def split_data_A(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    data_train_A = data.sample(
-        frac=parameters["train_fraction"], random_state=parameters["random_state"])
+    X = data.drop(columns=parameters["target_column"])
+    y = data[parameters["target_column"]]
     
-    data_test_A = data.drop(data_train_A.index)
+    sss = StratifiedShuffleSplit(
+        n_splits=1,
+        train_size=parameters["train_fraction"], random_state=parameters["random_state"])
+    
+    for train_idx, test_idx in sss.split(X, y):
+        data_train_A = data.iloc[train_idx]
+        data_test_A = data.iloc[test_idx]
+
     X_train_A = data_train_A.drop(columns=parameters["target_column"])
     X_test_A = data_test_A.drop(columns=parameters["target_column"])
     y_train_A = data_train_A[parameters["target_column"]]
     y_test_A = data_test_A[parameters["target_column"]]
 
-    return X_train_A, X_test_A, y_train_A, y_test_A 
+    return X_train_A, X_test_A, y_train_A, y_test_A
 
 # Split dataset -> Second Assumption  
 def split_data_B(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    data_train_B = data.sample(
+    X = data.drop(columns=parameters["target_column"])
+    y = data[parameters["target_column"]]
+    
+    sss = StratifiedShuffleSplit(
+        n_splits=1,
         frac=parameters["train_fraction"], random_state=parameters["random_state"])
     
-    data_test_B = data.drop(data_train_B.index)
+    for train_idx, test_idx in sss.split(X, y):
+        data_train_B = data.iloc[train_idx]
+        data_test_B = data.iloc[test_idx]
+    
     X_train_B = data_train_B.drop(columns=parameters["target_column"])
     X_test_B = data_test_B.drop(columns=parameters["target_column"])
     y_train_B = data_train_B[parameters["target_column"]]
