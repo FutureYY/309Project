@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 requires-python = ">=3.9"
-name = "309ml_pipeline"
+name = "mlpipeline"
 readme = "README.md"
 dynamic = [ "version",]
 dependencies = [ "ipython>=8.10", "jupyterlab>=3.0", "notebook", "kedro~=0.19.12",]
@@ -14,7 +14,7 @@ mlpipeline = "mlpipeline.__main__:main"
 
 [tool.kedro]
 package_name = "mlpipeline"
-project_name = "309ML_Pipeline"
+project_name = "mlPipeline"
 kedro_init_version = "0.19.12"
 tools = "['None']"
 example_pipeline = "False"
@@ -28,3 +28,6 @@ attr = "mlpipeline.__version__"
 [tool.setuptools.packages.find]
 where = [ "src",]
 namespaces = false
+
+[tool.kedro_telemetry]
+project_id = "6e944cca111945b6a7034d5d445f033d"
