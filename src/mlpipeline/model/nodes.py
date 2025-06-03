@@ -43,7 +43,6 @@ def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Ser
     random_forest_model = classifier_rfc.fit(X_train, y_train)
     
     y_pred_rfc = classifier_rfc.predict(X_test)
-    
     return y_pred_rfc, random_forest_model
     
 # Train and Predictions -> Binary Logistic Regression    
@@ -52,7 +51,6 @@ def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Ser
     binary_logistic_model = classifier_blr.fit(X_train, y_train)
     
     y_pred_blr = classifier_blr.predict(X_test)
-    
     return y_pred_blr, binary_logistic_model
     
 # Train and Predictions -> Gradient Boosting Classifier 
@@ -61,7 +59,6 @@ def model_train_GBC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Ser
     gradient_boosting_model = classifier_gbc.fit(X_train, y_train)
     
     y_pred_gbc = classifier_gbc.predict(X_test)
-    
     return y_pred_gbc, gradient_boosting_model
 
 # Function to report the evalutation metrics of the models    

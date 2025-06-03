@@ -6,13 +6,18 @@ from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
 
 def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
-    target = processed_data[["installment_value", "High_installment_flag", 
-                       "user_voucher", "category_grouped", "is_repeat_buyer",
-                       "Delivered_in_days", "Delivery_speed_flag",
-                       "Delivery_distance_in_km", "purchase_hour", "is_repeat_buyer"]]
+    target = processed_data[["installment_value", 
+                             "high_installment_flag",
+                             "used_voucher", 
+                             "category_grouped", 
+                             "delivered_in_days", 
+                             "delivery_speed_flag",
+                             "delivery_distance_in_km", 
+                             "purchase_hour", 
+                             "is_repeat_buyer"]]
     return target
 
-def time_taken_to_deliver(data: pd.DataFrame) -> pd.DataFrame:
+def time_taken_to_deliver(data):
   delivered_orders = data.filter(data.order_status == 'delivered')
 
   df_time = delivered_orders.withColumn('delivered_in_days', round((col('order_delivered_customer_date').cast('long') - col('order_purchase_timestamp').cast('long'))/86400))\
@@ -168,12 +173,11 @@ def get_category_in_english(df_order_items, df_products, df_product_category):
         "product_category_name",
         lower(trim("product_category_name"))
     )
-
     df_products_english = df_products_clean.join(
         df_category_clean,
         on="product_category_name",
         how="left"
-)
+    )
     df_category_price = df_order_items.join(
         df_products_english,
         on="product_id",
@@ -233,7 +237,7 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
     model = pipeline.fit(df_labeled)
     df_final = model.transform(df_labeled)
 
-    df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe").show(truncate=False)
+    df_final = df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe")
 
     return df_final
 
@@ -274,11 +278,11 @@ def build_final_dataset(
 
     # join delivery_timing (delivered_in_days)
     df_build = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
-                     .join(df_flagged.select("order_id", "delivery_speed_flag"), on="order_id", how="left") \
-                     .join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="left") \
-                     .join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="left") \
-                     .join(df_category_price.select("order_id", "category_grouped_ohe", "product_category_name_english", "product_id"), on="order_id", how="left") \
-                     .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
-                     .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
+                      .join(df_flagged.select("order_id", "delivery_speed_flag"), on="order_id", how="left") \
+                      .join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="left") \
+                      .join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="left") \
+                      .join(df_category_price.select("order_id", "category_grouped_ohe", "product_category_name_english", "product_id"), on="order_id", how="left") \
+                      .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
+                      .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
 
     return df_build

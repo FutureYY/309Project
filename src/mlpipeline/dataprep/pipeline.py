@@ -12,7 +12,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["df_time"],
                 name="time_taken_to_deliver_node",
             ),
-            node( ##
+            node(
                 func=flag_delivery_speed_flag,
                 inputs=["df_time", 
                         "params:delivery_time_col"],
@@ -79,7 +79,3 @@ def create_pipeline(**kwargs) -> Pipeline:
             )
         ]
     )
-    
-    
-    
-    

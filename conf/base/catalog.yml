@@ -1,76 +1,150 @@
-# Here you can define all your datasets by using simple YAML syntax.
-#
-# Documentation for this file format can be found in "The Data Catalog"
-# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
-
+# HERE IS THE DEFINITION OF THE INPUT AND OUTPUT DATASET FILES
+# HERE IS THE MODEL SAVING DIRECTORY AND OUTPUT DESINATION
 
 # Definition of the 10 datasets present from Olist 
 df_customers: #customer_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_geolocation: #geolocation_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_order_items: #order_items_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_order_payments: #order_payments_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_order_reviews: #order_reviews_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
-    index: false    
+    index: false
+    inferSchema: true    
 
 df_orders: #orders_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_products: #product_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_sellers: #sellers_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 df_product_category: #product_category_name_translations_dataset
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
+  file_format: csv
   save_args:
     index: false
+    inferSchema: true
 
 # Definition of the datasets after processing
 processed_data:
-  type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data.csv
+  type: spark.SparkDataSet
+  filepath: data/data_processed/combined_processed_data.csv
   save_args:
     index: false
+    inferSchema: true
 
 target_data:
-  type: pandas.CSVDataSet
+  type: spark.SparkDataSet
   filepath: data/data_target/target_data.csv
   save_args:
     index: false
+    inferSchema: true
+
+# Definition of the datasets for model training and evaluation
+df_time: 
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_time.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+
+df_flagged: 
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_flagged.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+  
+df_full: 
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_full.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+  
+df_result: 
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_result.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+
+df_category_price:
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_category_price.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+
+df_final:
+  type: spark.SparkDataSet
+  filepath: data/data_processed/df_final.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+
+customer_order_counts:
+  type: spark.SparkDataSet
+  filepath: data/data_processed/customer_order_counts.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
 
 # Functions to run the model:
 random_forest_model:
