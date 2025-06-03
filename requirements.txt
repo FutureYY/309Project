@@ -19,7 +19,6 @@ pyOpenSSL==25.1.0
 redis==6.2.0
 setuptools>=65.0
 Sphinx==8.2.3
-jnius==1.1.0
 pyspark==4.0.0
 
 -e .
