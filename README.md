@@ -1,16 +1,27 @@
-#EGT309_Project
+# EGT309_Project
 
 [![Powered by Kedro](https://img.shields.io/badge/powered_by-kedro-ffc900?logo=kedro)](https://kedro.org)
 
-Made by yours trult, Women In Stem
+Made by yours truly, Women In Stem
 
 Members:
+
 Chua Jiawen 231836H - 231836H@mymail.nyp.edu.sg 
+
 Goh Xin Leng Christel 220980C - 220980C@mymail.nyp.edu.sg 
+
 Wong Yen Yi 230666M - 230666M@mymail.nyp.edu.sg 
+
 Yoshana Magendran 230591E - 230591E@mymail.nyp.edu.sg
 
-##How to run the file after downloading
+## Programming language, librabries and packages used
+
+
+
+## EDA Key findings
+
+
+## Instructions for executing the pipeline
 
 1. Run Ubuntu or any Linux terminal on your device
 2. Path the file using cd
@@ -21,25 +32,40 @@ cd /mnt/file_path
 ```
 e.g. cd /mnt/c/Users/YourName/Documents
 
+3. Create a virtual environment
+   
+```
+python -m venv venv
+```
 
-## How to install dependencies
+4. Activate virtual environment
+ 
+```
+venv/bin/activate
+```
 
-
-To install them, run:
+5. Install the dependencies by running
 
 ```
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## How to run our project
-
-You can run the project with:
+6. Run the project using 
 
 ```
 bash run.sh
 ```
 
-dependencies will be downloaded when the shell script is run
+## Flow of pipeline
+
+## Choice of machine learning model
+
+## Model evaluation
+
+## Other Consideration
+
+
 
 
 
