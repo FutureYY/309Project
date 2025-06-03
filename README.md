@@ -1,12 +1,47 @@
-# 309ML_Pipeline
+#EGT309_Project
 
 [![Powered by Kedro](https://img.shields.io/badge/powered_by-kedro-ffc900?logo=kedro)](https://kedro.org)
 
-## Overview
+Made by yours trult, Women In Stem
 
-This is your new Kedro project, which was generated using `kedro 0.19.12`.
+Members:
+Chua Jiawen 231836H - 231836H@mymail.nyp.edu.sg 
+Goh Xin Leng Christel 220980C - 220980C@mymail.nyp.edu.sg 
+Wong Yen Yi 230666M - 230666M@mymail.nyp.edu.sg 
+Yoshana Magendran 230591E - 230591E@mymail.nyp.edu.sg
 
-Take a look at the [Kedro documentation](https://docs.kedro.org) to get started.
+##How to run the file after downloading
+
+1. Run Ubuntu or any Linux terminal on your device
+2. Path the file using cd
+
+```
+cd /mnt/file_path
+
+```
+e.g. cd /mnt/c/Users/YourName/Documents
+
+
+## How to install dependencies
+
+
+To install them, run:
+
+```
+pip install -r requirements.txt
+```
+
+## How to run our project
+
+You can run the project with:
+
+```
+bash run.sh
+```
+
+dependencies will be downloaded when the shell script is run
+
+
 
 ## Rules and guidelines
 
@@ -16,24 +51,6 @@ In order to get the best out of the template:
 * Make sure your results can be reproduced by following a data engineering convention
 * Don't commit data to your repository
 * Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
-
-## How to install dependencies
-
-Declare any dependencies in `requirements.txt` for `pip` installation.
-
-To install them, run:
-
-```
-pip install -r requirements.txt
-```
-
-## How to run your Kedro pipeline
-
-You can run your Kedro project with:
-
-```
-kedro run
-```
 
 ## How to test your Kedro project
 
