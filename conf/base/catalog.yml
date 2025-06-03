@@ -68,8 +68,28 @@ processed_data:
 
 target_data:
   type: pandas.CSVDataSet
-  filepath: data/data_processed/target_data.csv
+  filepath: data/data_target/target_data.csv
   save_args:
     index: false
 
 # Functions to run the model:
+random_forest_model:
+  type: Pickle.PickleDataSet
+  filepath: saved_model/random_forest/random_forest_model.pkl
+  versioned: true
+  save_args:
+    protocol: pickle
+
+binary_logistic_model:
+  type: Pickle.PickleDataSet
+  filepath: saved_model/binary_logistic/binary_logistic_model.pkl
+  versioned: true
+  save_args:
+    protocol: pickle
+
+gradient_boosting_model:
+  type: Pickle.PickleDataSet
+  filepath: saved_model/gradient_boosting/gradient_boosting_model.pkl
+  versioned: true
+  save_args:
+    protocol: pickle
