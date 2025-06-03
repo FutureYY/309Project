@@ -29,7 +29,6 @@ df_order_payments: #order_payments_dataset
   save_args:
     index: false
 
-
 df_order_reviews: #order_reviews_dataset
   type: pandas.CSVDataSet
   filepath: data/data_cleaned/.csv
@@ -67,14 +66,10 @@ processed_data:
   save_args:
     index: false
 
-processed_data_A:
+target_data:
   type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_A.csv
+  filepath: data/data_processed/target_data.csv
   save_args:
-    index: false  
+    index: false
 
-processed_data_B:
-  type: pandas.CSVDataSet
-  filepath: data/data_processed/processed_data_B.csv
-  save_args:
-    index: false    
+# Functions to run the model:

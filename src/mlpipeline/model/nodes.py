@@ -21,7 +21,7 @@ os.makedirs(model_dir, exist_ok=True)
 KF = KFold(n_splits=5, random_state=42, shuffle=True)
 
 # Split dataset -> First Assumption 
-def split_data_A(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     target_column = parameters["target_column"]
     X = data.drop(columns=target_column)    
     y = data[target_column]
@@ -29,45 +29,23 @@ def split_data_A(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.Dat
     # Split data into train and test first
     sss1 = StratifiedShuffleSplit(n_splits=1, train_size=parameters["train_fraction"], random_state=parameters["random_state"])
     for train_idx, test_idx in sss1.split(X, y):
-        X_train_A = X.iloc[train_idx]
-        X_test_A = X.iloc[test_idx]
+        X_train = X.iloc[train_idx]
+        X_test = X.iloc[test_idx]
         
-        y_train_A = y.iloc[train_idx]
-        y_test_A = y.iloc[test_idx]
+        y_train = y.iloc[train_idx]
+        y_test = y.iloc[test_idx]
         
      # Split the 30% of test into test and validation   
     sss2 = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=parameters["random_state"])
-    for test_idx, val_idx in sss2.split(X_test_A, y_test_A):
-        X_test_A = X_test_A.iloc[test_idx]
-        X_val_A = X_test_A.iloc[val_idx]
+    for test_idx, val_idx in sss2.split(X_test, y_test):
+        X_test = X_test.iloc[test_idx]
+        X_val = X_test.iloc[val_idx]
         
-        y_test_A = y_test_A.iloc[test_idx]
-        y_val_A = y_test_A.iloc[val_idx]
+        y_test = y_test.iloc[test_idx]
+        y_val = y_test.iloc[val_idx]
         
-    return X_train_A, X_test_A, X_val_A, y_train_A, y_test_A, y_val_A  
+    return X_train, X_test, X_val, y_train, y_test, y_val
         
-# Split dataset -> Second Assumption  
-def split_data_B(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    X = data.drop(columns=parameters["target_column"])
-    y = data[parameters["target_column"]]
-    
-    sss3 = StratifiedShuffleSplit(n_splits=1, train_size=parameters["train_fraction"], random_state=parameters["random_state"])
-    for train_idx, test_idx in sss3.split(X, y):
-        X_train_B = X.iloc[train_idx]
-        X_test_B = X.iloc[test_idx]
-        
-        y_train_B = y.iloc[train_idx]
-        y_test_B = y.iloc[test_idx]
-        
-    sss4 = StratifiedShuffleSplit(n_splits=1, test_size=0.5, random_state=parameters["random_state"])
-    for test_idx, val_idx in sss4.split(X_test_B, y_test_B):
-        X_test_B = X_test_B.iloc[test_idx]
-        X_val_B = X_test_B.iloc[val_idx]
-        
-        y_test_B = y_test_B.iloc[test_idx]
-        y_val_B = y_test_B.iloc[val_idx]    
-
-    return X_train_B, X_test_B, X_val_B, y_train_B, y_test_B, y_val_B 
     
 # Train and Predictions -> Random Forest Classifier    
 def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series) -> pd.Series:
@@ -101,24 +79,23 @@ def model_train_GBC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Ser
 
 # Function to report the evalutation metrics of the models    
 def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series, 
-                      y_pred_gbc: pd.Series, y_test_A: pd.Series, 
-                      y_test_B: pd.Series, X_test_A: pd.DataFrame,
-                      X_test_B: pd.DataFrame):
+                      y_pred_gbc: pd.Series, y_test: pd.Series, 
+                      X_test: pd.DataFrame,):
     
     # Evalutation metrics -> Random Forest Classifier
-    accuracy_rfc = accuracy_score(y_test_A, y_pred_rfc)
-    ROC_AUC_rfc = roc_auc_score(y_test_A, classifier_rfc.predict_proba(X_test_A)[:, 1])
-    classification_report_rfc = classification_report(y_test_A, y_pred_rfc)
+    accuracy_rfc = accuracy_score(y_test, y_pred_rfc)
+    ROC_AUC_rfc = roc_auc_score(y_test, classifier_rfc.predict_proba(X_test)[:, 1])
+    classification_report_rfc = classification_report(y_test, y_pred_rfc)
 
     # Evalutation metrics -> Binary Logistic Regression
-    accuracy_blr = accuracy_score(y_test_A, y_pred_blr)
-    ROC_AUC_blr = roc_auc_score(y_test_A, classifier_blr.predict_proba(X_test_A)[:, 1])
-    classification_report_blr = classification_report(y_test_A, y_pred_blr)
+    accuracy_blr = accuracy_score(y_test, y_pred_blr)
+    ROC_AUC_blr = roc_auc_score(y_test, classifier_blr.predict_proba(X_test)[:, 1])
+    classification_report_blr = classification_report(y_test, y_pred_blr)
 
     # Evalutation metrics -> Gradient Boosting Classifier  
-    accuracy_gbc = accuracy_score(y_test_B, y_pred_gbc)
-    ROC_AUC_gbc = roc_auc_score(y_test_B, classifier_gbc.predict_proba(X_test_B)[:, 1])
-    classification_report_gbc = classification_report(y_test_B, y_pred_gbc)
+    accuracy_gbc = accuracy_score(y_test, y_pred_gbc)
+    ROC_AUC_gbc = roc_auc_score(y_test, classifier_gbc.predict_proba(X_test)[:, 1])
+    classification_report_gbc = classification_report(y_test, y_pred_gbc)
      
     # the logger info here is to display the evaluations results of the models
     logger = logging.getLogger(__name__)

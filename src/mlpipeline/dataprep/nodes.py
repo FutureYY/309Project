@@ -5,19 +5,15 @@ from pyspark.sql import DataFrame
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
 
-def target_dataset_A(processed_data: pd.DataFrame) -> pd.DataFrame: 
-    target_A = processed_data[["installment_value", "High_installment_flag", 
-                       "user_voucher", "category_grouped", "is_repeat_buyer"]]
-    return target_A
-    
-
-def target_dataset_B(processed_data: pd.DataFrame) -> pd.DataFrame:
-    target_B = processed_data[["Delivered_in_days", "Delivery_speed_flag", 
+def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
+    target = processed_data[["installment_value", "High_installment_flag", 
+                       "user_voucher", "category_grouped", "is_repeat_buyer",
+                       "Delivered_in_days", "Delivery_speed_flag",
                        "Delivery_distance_in_km", "purchase_hour", "is_repeat_buyer"]]
-    return target_B
+    return target
 
-def time_taken_to_deliver(df_orders: pd.DataFrame) -> pd.DataFrame:
-  delivered_orders = df_orders.filter(df_orders.order_status == 'delivered')
+def time_taken_to_deliver(data: pd.DataFrame) -> pd.DataFrame:
+  delivered_orders = data.filter(data.order_status == 'delivered')
 
   df_time = delivered_orders.withColumn('delivered_in_days', round((col('order_delivered_customer_date').cast('long') - col('order_purchase_timestamp').cast('long'))/86400))\
             .withColumn('month_of_purchase', month(col('order_purchase_timestamp')))\
@@ -28,11 +24,11 @@ def time_taken_to_deliver(df_orders: pd.DataFrame) -> pd.DataFrame:
 
 # sorts orders into fast, normal, slow delivery
 # fast delivery = 1, normal dlivery = 2, slow delivery = 3
-def flag_delivery_speed_flag(df_time, delivery_time_col="delivered_in_days"):
+def flag_delivery_speed_flag(df, delivery_time_col="delivered_in_days"):
   
-    avg_val = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+    avg_val = df.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
 
-    df_flagged = df_time.withColumn(
+    df_flagged = df.withColumn(
             "delivery_speed_flag",
             when(col(delivery_time_col) <= avg_val - 1, 1)      # for fast delivery timing
             .when(col(delivery_time_col) <= avg_val + 1, 2)     # for normal delivery timing
@@ -277,7 +273,7 @@ def build_final_dataset(
         .join(df_customers.select("customer_id", "customer_unique_id"), on="customer_id", how="left")
 
     # join delivery_timing (delivered_in_days)
-    df_final = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
+    df_build = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
                      .join(df_flagged.select("order_id", "delivery_speed_flag"), on="order_id", how="left") \
                      .join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="left") \
                      .join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="left") \
@@ -285,5 +281,4 @@ def build_final_dataset(
                      .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
                      .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
 
-    df_final.to_csv("../data/data_processed/processed_data.csv", index=False)
-    return df_final
+    return df_build
