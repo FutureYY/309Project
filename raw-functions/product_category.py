@@ -1,4 +1,3 @@
-from cleaned_data import df_product_category
 from pyspark.sql.functions import lower, trim, countDistinct, col, when, sum as spark_sum
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
