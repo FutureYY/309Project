@@ -71,6 +71,6 @@ def add_high_installment_flag(df_order_payments: DataFrame,
         ).otherwise(0)
     )
 
-    df_result = df_result.select("order_id", "payment_type", "payment_sequential", "payment_value", "payment_installments", "installment_value", "installment_value_capped", "high_installment_flag", "used_voucher")
+    df_installments = df_result.select("order_id", "payment_type", "payment_sequential", "payment_value", "payment_installments", "installment_value", "installment_value_capped", "high_installment_flag", "used_voucher")
 
-    return df_result
+    return df_installments

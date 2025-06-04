@@ -79,8 +79,8 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
     encoder = OneHotEncoder(inputCols=["category_grouped_index"], outputCols=["category_grouped_ohe"])
     pipeline = Pipeline(stages=[indexer, encoder])
     model = pipeline.fit(df_labeled)
-    df_final = model.transform(df_labeled)
+    df_ohe = model.transform(df_labeled)
 
-    df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe").show(truncate=False)
+    df_ohe.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe").show(truncate=False)
 
-    return df_final
+    return df_ohe
