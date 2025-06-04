@@ -1,6 +1,3 @@
-from pyspark.sql.functions import col, when, avg
-
-# sort installments into 
 from pyspark.sql.functions import col, when, avg, round
 from pyspark.sql import DataFrame
 
@@ -8,7 +5,7 @@ from pyspark.sql import DataFrame
 # flags installments with high value as 1, absed on the average threshold
 # adds a column "used_voucher" if voucher is used as opne of the payment type
 
-def add_high_installment_flag(df: DataFrame,
+def add_high_installment_flag(df_order_payments: DataFrame,
                                installment_col="payment_installments",
                                value_col="payment_value",
                                sequential_col="payment_sequential",
@@ -21,7 +18,7 @@ def add_high_installment_flag(df: DataFrame,
     """
 
     # Step 1: Flag voucher payments
-    df = df.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
+    df = df_order_payments.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
 
     # Step 2: Calculate raw installment value
     df = df.withColumn(

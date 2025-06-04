@@ -35,10 +35,10 @@ def get_category_in_english(df_order_items, df_products):
 # group categories that contribute little to the overall percentage sales as 'others'
 # do one hot encoding on all the categories so that the model can process it
 
-def group_categories_by_sales_with_ohe(df, category_col="product_category_name_english", value_col="price", threshold=0.8):
+def group_categories_by_sales_with_ohe(df_category_price, category_col="product_category_name_english", value_col="price", threshold=0.8):
 
     # Step 1: Calculate total sales per category
-    sales_per_category = df.groupBy(category_col) \
+    sales_per_category = df_category_price.groupBy(category_col) \
         .agg(spark_sum(value_col).alias("total_sales")) \
         .orderBy("total_sales", ascending=False)
 
@@ -54,11 +54,11 @@ def group_categories_by_sales_with_ohe(df, category_col="product_category_name_e
     top_categories = sales_pd[sales_pd["cumulative_pct"] <= threshold][category_col].tolist()
 
     # Step 4: Convert back to Spark
-    spark = df.sparkSession
+    spark =df_category_price.sparkSession
     sales_enriched = spark.createDataFrame(sales_pd)
 
     # Step 5: Join stats to original
-    df_enriched = df.join(
+    df_enriched = df_category_price.join(
         sales_enriched.select(
             category_col,
             "total_sales",
