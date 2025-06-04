@@ -11,13 +11,12 @@ ipython>=8.10
 jupyterlab>=3.0
 notebook
 ipywidgets==8.1.7
-flask>=2.3.0
 cryptography==45.0.3
 filelock==3.18.0
 protobuf==6.31.1
 pyOpenSSL==25.1.0
 redis==6.2.0
 setuptools>=65.0
-Sphinx==8.2.3
-pyspark==4.0.0
+pyspark==3.3.1
+matplotlib==3.8.2
 

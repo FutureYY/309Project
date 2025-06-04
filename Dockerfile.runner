@@ -1,0 +1,16 @@
+# Use Python 3.12 slim as base image
+FROM python:3.12-slim
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy all project files into the container
+COPY . /app
+
+# Install Python dependencies and make script executable
+RUN chmod +x run.sh && \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Default command: execute the run script
+CMD ["bash", "./run.sh"]
