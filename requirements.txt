@@ -21,4 +21,3 @@ setuptools>=65.0
 Sphinx==8.2.3
 pyspark==4.0.0
 
--e .

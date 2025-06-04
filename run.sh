@@ -3,30 +3,36 @@
 # Exit on first error
 set -e
 
-# Set environment name
-ENV_NAME=".venv"
-
-echo "Checking if virtual environment exists..."
-if [ ! -d "$ENV_NAME" ]; then
-  echo "Creating virtual environment..."
-  python -m venv $ENV_NAME
-fi
-
-echo "Activating virtual environment..."
-source $ENV_NAME/bin/activate
-
-echo "Installing dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
-
 echo "Running Kedro pipeline..."
 kedro run
 
 echo "Training model..."
 python src/model/train_model.py
 
-echo "Done. Model saved to saved_model/"
+echo "Model training is completed, saving model "
 
-echo "Starting Flask app..."
-python app.py
+while true; do
+    echo "Select an option:"
+    echo "1) Show prediction result in terminal"
+    echo "2) Run Flask app in Docker"
+    read -p "Enter choice [1 or 2]: " choice
+
+    if [ "$choice" == "1" ]; then
+        echo "Running prediction script..."
+        python app.py
+        break
+
+    elif [ "$choice" == "2" ]; then
+        echo "Building Docker image..."
+        docker build -t my-flask-app .
+
+        echo "Running Docker container..."
+        docker run -p 5000:5000 my-flask-app
+        break
+
+    else
+        echo "Invalid choice. Please try again."
+    fi
+done
+
 
