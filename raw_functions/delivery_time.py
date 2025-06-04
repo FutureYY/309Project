@@ -15,19 +15,19 @@ def time_taken_to_deliver(df_orders):
   return df_time
 
 # sorts orders into fast, normal, slow delivery
-def flag_delivery_speed_relative(df, delivery_time_col="delivered_in_days"):
+def flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days"):
     
 
     # takes data from "delivered_in_days" from delivery_timing
     # calculate the average days take to deliver and stores it in avg_days
-    avg_days = df.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+    avg_days = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
 
     # creates a new dataframe with delivery_speed_flag column
     # if "delivered_in_days" <= avg_days + 1, delivery_speed_flag == 2, indicating normal delivery
     # if "delivered_in_days" <= avg_days - 1, delivery_speed_flag == 1, indicating fast delivery
     # else delivery_speed_flag == 3, indicating slow delivery
 
-    df_flagged_speed = df.withColumn(
+    df_flagged_speed = df_time.withColumn(
             "delivery_speed_flag",
             when(col(delivery_time_col) <= avg_days - 1, 1)      # for fast delivery timing
             .when(col(delivery_time_col) <= avg_days + 1, 2)     # for normal delivery timing
