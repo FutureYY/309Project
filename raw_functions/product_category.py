@@ -1,6 +1,7 @@
 from pyspark.sql.functions import lower, trim, countDistinct, col, when, sum as spark_sum
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
+from cleaned_data import cleaned_products as df_product_category
 
 # get product category in english by combining with df_order_items
 
