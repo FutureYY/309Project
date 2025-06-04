@@ -5,7 +5,7 @@ from pyspark.sql import DataFrame
 # flags installments with high value as 1, absed on the average threshold
 # adds a column "used_voucher" if voucher is used as opne of the payment type
 
-def add_high_installment_flag(df_order_payments: DataFrame,
+def add_high_installment_flag(df_order_payments,
                                installment_col="payment_installments",
                                value_col="payment_value",
                                sequential_col="payment_sequential",

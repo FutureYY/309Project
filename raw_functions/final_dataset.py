@@ -1,24 +1,35 @@
-from raw_functions.distance import time_taken_to_deliver
 from raw_functions.delivery_time import time_taken_to_deliver, flag_delivery_speed_relative
 from raw_functions.distance import add_order_delivery_distance
 from raw_functions.installment_flagging import add_high_installment_flag
 from raw_functions.product_category import get_category_in_english, group_categories_by_sales_with_ohe
-from raw_functions.repeat_buyers import finding_repeat_buyers, add_repeat_order_gaps
+from raw_functions.repeat_buyers import finding_repeat_buyers
 
 def build_final_dataset(
-    df_orders,
-    df_customers,
-    df_installments,                # from add_high_installment_flag()
-    df_category_price,              # from df_with_category_and_price()
-    df_ohe,                         # from group_categories_by_sales()
-    df_time,                        # from time_taken_to_deliver()
-    df_flagged_speed,               # from flag_delivery_speed_relative()
-    df_full,                        # from add_order_delivery_distance()
-    customer_order_counts,          # from finding_repeat_buyers()
-    df_order_reviews                # to get review score
-):
-    from pyspark.sql.functions import hour
+    df_order_items, df_products, df_product_category, df_orders,
+    df_customers, df_sellers, df_order_payments, df_geolocation, df_order_reviews
 
+):
+    df_category_price = get_category_in_english(df_order_items, df_products, df_product_category)
+    df_ohe = group_categories_by_sales_with_ohe(
+    df_category_price,
+    category_col="product_category_name_english",
+    value_col="price",
+    threshold=0.8
+    )
+
+
+    df_full = add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_geolocation, df_order_items)
+
+    df_time = time_taken_to_deliver(df_orders)
+    df_with_speed_flag = flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
+
+    df_installments = add_high_installment_flag(df_order_payments,
+                               installment_col="payment_installments",
+                               value_col="payment_value",
+                               sequential_col="payment_sequential",
+                               payment_type_col="payment_type")
+    customer_order_counts = finding_repeat_buyers(df_orders, df_customers, df_order_items)
+    df_flagged_speed = flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
     # --------------------------
     # Customer-level Features
     # --------------------------
@@ -30,7 +41,7 @@ def build_final_dataset(
     # Delivery-related Features
     # --------------------------
     # join delivery_timing (delivered_in_days)
-    df_base = df_base.join(df_time.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="inner")
+    df_base = df_base.join(df_time.select("order_id", "delivered_in_days", "time_of_purchase", "month_of_purchase"), on="order_id", how="inner")
 
     # join delivery_speed_flag
     df_base = df_base.join(df_flagged_speed.select("order_id", "delivery_speed_flag"), on="order_id", how="inner")

@@ -1,10 +1,12 @@
-from pyspark.sql.functions import col, avg, radians, sin, cos, atan2, sqrt, when
+
+from math import radians, cos, sin, asin, sqrt, atan2
+from pyspark.sql.functions import radians as spark_radians, sin as spark_sin, cos as spark_cos, atan2 as spark_atan2, sqrt as spark_sqrt, round as spark_round, col, avg, radians, sin, cos, atan2, sqrt, when
 
 
 # calcualtes distance of customer from seller based on zip code given (in km)
 # distance calculated using the haversine formula
 
-def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sellers, df_geolocation):
+def add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_geolocation, df_order_items):
 
     # Step 1: Aggregate average lat/long by zip code
     df_zip_avg_geo = df_geolocation.groupBy("geolocation_zip_code_prefix").agg(
@@ -58,7 +60,8 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
     R_km = 6371.0  # Earth radius in kilometers
 
-    df_full = df_full.withColumn("delivery_distance_in_km", round(R_km * c, 2))
+    df_full = df_full.withColumn("delivery_distance_in_km", spark_round(R_km * c, 2))
+
     df_full.drop("cust_lat_rad", "cust_lon_rad", "sell_lat_rad", "sell_lon_rad", "delta_lat", "delta_lon")
     df_full = df_full.select("order_id", "customer_id", "seller_id", "delivery_distance_in_km")
 

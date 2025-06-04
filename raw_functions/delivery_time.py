@@ -4,7 +4,8 @@ from pyspark.sql.functions import col, round, month, hour, avg, when
 def time_taken_to_deliver(df_orders):
 
   # filter for orders that have 'delivered' status
-  delivered_orders = df_orders.filter(df_orders.order_status == 'delivered')
+  delivered_orders = df_orders.filter(col("order_status") == "delivered") \
+                           .na.drop(subset=["order_delivered_customer_date", "order_purchase_timestamp"])
 
   df_time = delivered_orders.withColumn('delivered_in_days', round((col('order_delivered_customer_date').cast('long') - col('order_purchase_timestamp').cast('long'))/86400))\
             .withColumn('month_of_purchase', month(col('order_purchase_timestamp')))\
@@ -20,7 +21,11 @@ def flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
 
     # takes data from "delivered_in_days" from delivery_timing
     # calculate the average days take to deliver and stores it in avg_days
+    avg_row = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]
     avg_days = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+
+    if avg_days is None:
+        raise ValueError(f"The column `{delivery_time_col}` contains only nulls or no data.")
 
     # creates a new dataframe with delivery_speed_flag column
     # if "delivered_in_days" <= avg_days + 1, delivery_speed_flag == 2, indicating normal delivery
