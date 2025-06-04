@@ -12,6 +12,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["df_time"],
                 name="time_taken_to_deliver_node",
             ),
+            
             node(
                 func=flag_delivery_speed_flag,
                 inputs=["df_time", 
@@ -19,6 +20,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["df_flagged"],
                 name="flag_delivery_speed_flag_node",
             ),
+            
             node(
                 func=add_order_delivery_distance,
                 inputs=["df_orders",
@@ -29,13 +31,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["df_full"],
                 name="add_order_delivery_distance_node",
             ),
+            
             node(
                 func=add_high_installment_flag,
                 inputs=["df_order_payments"],
                 outputs=["df_result"],
                 name="add_high_installment_flag_node",
             ),
-            node( ##
+            
+            node(
                 func=get_category_in_english,
                 inputs=["df_order_items", 
                         "df_products", 
@@ -43,13 +47,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["df_category_price"],
                 name="get_category_in_english_node",
             ),
-            node( ###
+            
+            node(
                 func=group_categories_by_sales_with_ohe,
                 inputs=["df_category_price"],
                 outputs=["df_final"],
                 name="group_categories_by_sales_with_ohe_node",
             ),
-            node( ##
+            
+            node(
                 func=finding_repeat_buyers,
                 inputs=["df_orders", 
                         "df_customers",
@@ -57,7 +63,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["customer_order_counts"],
                 name="finding_repeat_buyers_node",
             ),
-            node( ###
+            
+            node(
                 func=build_final_dataset,
                 inputs=["df_orders", 
                         "df_customers", 
@@ -71,6 +78,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["processed_data"],
                 name="build_final_dataset_node",
             ),
+            
             node(
                 func=target_dataset,
                 inputs=["processed_data"],

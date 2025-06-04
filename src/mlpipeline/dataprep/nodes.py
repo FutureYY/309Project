@@ -1,22 +1,25 @@
 import pandas as pd
-from typing import Dict, Any, Tuple
 from pyspark.sql.functions import col, round, month, hour, avg, when, radians, sin, cos, sum as spark_sum, atan2, sqrt, lower, trim, min, max, countDistinct, count, sum
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
 
-def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
-    target = processed_data[["installment_value", 
-                             "high_installment_flag",
-                             "used_voucher", 
-                             "category_grouped", 
-                             "delivered_in_days", 
-                             "delivery_speed_flag",
-                             "delivery_distance_in_km", 
-                             "purchase_hour", 
-                             "is_repeat_buyer"]]
-    return target
 
+# Extracting the important features [8] and target [1] needed for my model training. 
+def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
+    target_data = processed_data[["installment_value", 
+                                  "high_installment_flag",
+                                  "used_voucher", 
+                                  "category_grouped", 
+                                  "delivered_in_days", 
+                                  "delivery_speed_flag",
+                                  "delivery_distance_in_km", 
+                                  "purchase_hour", 
+                                  "is_repeat_buyer"]]
+    return target_data
+
+
+# calculate time for each order to be delivered, from order purchased to order delivered time
 def time_taken_to_deliver(data):
   delivered_orders = data.filter(data.order_status == 'delivered')
 
@@ -26,6 +29,7 @@ def time_taken_to_deliver(data):
 
   df_time = df_time.select("order_id" , "order_purchase_timestamp", "order_delivered_customer_date", "time_of_purchase", "month_of_purchase", "delivered_in_days")
   return df_time
+
 
 # sorts orders into fast, normal, slow delivery
 # fast delivery = 1, normal dlivery = 2, slow delivery = 3
@@ -42,6 +46,10 @@ def flag_delivery_speed_flag(df, delivery_time_col="delivered_in_days"):
 
     return df_flagged
 
+
+
+# calcualtes distance of customer from seller based on zip code given (in km)
+# distance calculated using the haversine formula
 def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sellers, df_geolocation):
     # Step 1: Aggregate average lat/long by zip code
     df_zip_avg_geo = df_geolocation.groupBy("geolocation_zip_code_prefix").agg(
@@ -97,6 +105,8 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
 
     # Drop intermediate columns for cleanliness
     return df_full
+
+
 
 # clip outliers from per installment value and assigns installment value to the max amount 
 # flags installments with high value as 1, absed on the average threshold
@@ -163,6 +173,8 @@ def add_high_installment_flag(df_order_payments: DataFrame,
 
     return df_result
 
+
+# get product category in english by combining with df_order_items
 def get_category_in_english(df_order_items, df_products, df_product_category):
 
     df_products_clean = df_products.withColumn(
@@ -187,6 +199,7 @@ def get_category_in_english(df_order_items, df_products, df_product_category):
     df_category_price = df_category_price.select('product_id', 'order_id', 'order_item_id', 'seller_id', 'price', 'product_category_name_english')
 
     return df_category_price
+
 
 # group categories that contribute little to the overall percentage sales as 'others'
 # do one hot encoding on all the categories so that the model can process it
@@ -241,6 +254,9 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
 
     return df_final
 
+
+# find repeated customer based of number of orders
+# if number of order > 1, customer is counted as a repeat buyer
 def finding_repeat_buyers(df_orders, df_customers, df_order_items):
     # Step 1: Join orders with customers to get customer_unique_id
     df_customer_order = df_orders.join(df_customers, on="customer_id", how="inner")
@@ -261,6 +277,8 @@ def finding_repeat_buyers(df_orders, df_customers, df_order_items):
 
     return customer_order_counts
     
+    
+# build the final dataset [with the necessary features to catagorize] to be used for model training    
 def build_final_dataset(
     df_orders,
     df_customers,
@@ -277,7 +295,7 @@ def build_final_dataset(
         .join(df_customers.select("customer_id", "customer_unique_id"), on="customer_id", how="left")
 
     # join delivery_timing (delivered_in_days)
-    df_build = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
+    processed_data = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
                       .join(df_flagged.select("order_id", "delivery_speed_flag"), on="order_id", how="left") \
                       .join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="left") \
                       .join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="left") \
@@ -285,4 +303,4 @@ def build_final_dataset(
                       .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
                       .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
 
-    return df_build
+    return processed_data

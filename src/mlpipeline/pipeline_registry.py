@@ -1,10 +1,20 @@
 from __future__ import annotations
-
-from kedro.framework.project import find_pipelines
 from kedro.pipeline import Pipeline
+from mlpipeline import dataprep, model, model_report
 
+#defining the pathway to run the pipeline in a order, dataprep -> model -> evaluation. 
 def register_pipelines() -> dict[str, Pipeline]:
-    #Register the project's data processing pipelines.
-    pipelines = find_pipelines()
-    pipelines["__default__"] = sum(pipelines.values())
-    return pipelines
+    # Create each modular pipeline
+    dataprep_pipeline = dataprep.create_pipeline()
+    model_pipeline = model.create_pipeline()
+    evaluation_pipeline = model_report.create_pipeline()
+
+    # Combine them in the correct logical order
+    default_pipeline = dataprep_pipeline + model_pipeline + evaluation_pipeline
+
+    return {
+        "dataprep": dataprep_pipeline,
+        "model": model_pipeline,
+        "evaluation": evaluation_pipeline,
+        "__default__": default_pipeline,
+    }

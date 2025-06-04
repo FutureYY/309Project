@@ -1,7 +1,7 @@
 # HERE IS THE DEFINITION OF THE INPUT AND OUTPUT DATASET FILES
 # HERE IS THE MODEL SAVING DIRECTORY AND OUTPUT DESINATION
 
-# Definition of the 10 datasets present from Olist 
+# Definition of the 9 CSV datasets present from Olist 
 df_customers: #customer_dataset
   type: spark.SparkDataSet
   filepath: data/data_cleaned/.csv
@@ -75,21 +75,21 @@ df_product_category: #product_category_name_translations_dataset
     inferSchema: true
 
 # Definition of the datasets after processing
-processed_data:
+processed_data: # dataset that combines all the cleaned datasets with the features and target
   type: spark.SparkDataSet
   filepath: data/data_processed/combined_processed_data.csv
   save_args:
     index: false
     inferSchema: true
 
-target_data:
+target_data: # dataset that contains the features and target variable for model training
   type: spark.SparkDataSet
   filepath: data/data_target/target_data.csv
   save_args:
     index: false
     inferSchema: true
 
-# Definition of the datasets for model training and evaluation
+# Definition of the datasets after feature engineering
 df_time: 
   type: spark.SparkDataSet
   filepath: data/data_processed/df_time.csv
@@ -157,13 +157,6 @@ random_forest_model:
 binary_logistic_model:
   type: Pickle.PickleDataSet
   filepath: saved_model/binary_logistic/binary_logistic_model.pkl
-  versioned: true
-  save_args:
-    protocol: pickle
-
-gradient_boosting_model:
-  type: Pickle.PickleDataSet
-  filepath: saved_model/gradient_boosting/gradient_boosting_model.pkl
   versioned: true
   save_args:
     protocol: pickle
