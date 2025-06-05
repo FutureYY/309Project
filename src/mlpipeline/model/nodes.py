@@ -57,8 +57,7 @@ def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Ser
 
 # Function to report the evalutation metrics of the models    
 def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series, 
-                      y_pred_gbc: pd.Series, y_test: pd.Series, 
-                      X_test: pd.DataFrame, #gradient_boosting_model, 
+                      y_test: pd.Series, X_test: pd.DataFrame, 
                       binary_logistic_model, random_forest_model):
     
     # Evalutation metrics -> Random Forest Classifier

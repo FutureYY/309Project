@@ -1,27 +1,28 @@
 # Common training parameters for the models
 split_data: 
-  train_fraction: 0.7
-  test_fraction: 0.15
-  val_fraction: 0.15
-  random_state: 42
-  target_column: 'is_repeated_buyers'
+    train_fraction: 0.7
+    test_fraction: 0.15
+    val_fraction: 0.15
+    random_state: 42
+    target_column: 'is_repeated_buyers'
 
 # Parameters for each model type
 random_forest_params:
-  n_estimators: [100, 200]
-  max_depth: [None, 10, 20]
-  min_samples_split: [2, 5]
-  min_samples_leaf: [1, 2]
-  oob_score: true
-  random_state: 42
-  warm_start: true
+    n_estimators: [100, 200]
+    max_depth: [None, 10, 20]
+    min_samples_split: [2, 5]
+    min_samples_leaf: [1, 2]
+    oob_score: true
+    random_state: 42
+    warm_start: true
 
 binary_logistic_params:
-  penalty: ['l1','l2','elasticnet','none'],
-  max_iter: [100, 200, 300, 400]
-  random_state: 42
-  verbose: true
-  n_jobs: -1 
+    penalty: ['l1','l2','elasticnet','none']
+    max_iter: [100, 200, 300, 400]
+    random_state: 42
+    verbose: true
+    n_jobs: -1 
 
+delivery_time_col: "delivered_in_days"
 
 

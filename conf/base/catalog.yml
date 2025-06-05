@@ -2,161 +2,320 @@
 # HERE IS THE MODEL SAVING DIRECTORY AND OUTPUT DESINATION
 
 # Definition of the 9 CSV datasets present from Olist 
-df_customers: #customer_dataset
+
+df_customers:
   type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  filepath: data/data_cleaned/cleaned_customer.csv
   file_format: csv
+  load_args:
+    options:
+      header: "true"
+      inferSchema: "true"
   save_args:
-    index: false
-    inferSchema: true
+    mode: overwrite
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_geolocation: #geolocation_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_geolocation.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_order_items: #order_items_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_order_items.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_order_payments: #order_payments_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_order_payments.csv
   file_format: csv
   save_args:
     index: false
-    inferSchema: true
+  load_args:
+    options:
+      # header: "true"
+      inferSchema: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_order_reviews: #order_reviews_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_reviews.csv
   file_format: csv
   save_args:
     index: false
-    inferSchema: true    
+    inferSchema: true
+  load_args:
+    options:
+      header: "true"   
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_orders: #orders_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_orders.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_products: #product_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_product.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
 df_sellers: #sellers_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/cleaned_seller.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
 
-df_product_category: #product_category_name_translations_dataset
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/.csv
+df_product_category: #product_category_name_translation_dataset
+  type: spark.SparkDataset
+  filepath: data/data_cleaned/product_category_name_translation.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
+
 
 # Definition of the datasets after processing
 processed_data: # dataset that combines all the cleaned datasets with the features and target
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/combined_processed_data.csv
+  file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: primary
 
 target_data: # dataset that contains the features and target variable for model training
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_target/target_data.csv
+  file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: primary
+
 
 # Definition of the datasets after feature engineering
 df_time: 
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_time.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
 
 df_flagged: 
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_flagged.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
   
 df_full: 
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_full.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
   
 df_result: 
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_result.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
 
 df_category_price:
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_category_price.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
 
 df_final:
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/df_final.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
 
 customer_order_counts:
-  type: spark.SparkDataSet
+  type: spark.SparkDataset
   filepath: data/data_processed/customer_order_counts.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+df_installments:
+  type: spark.SparkDataset
+  filepath: data/data_processed/df_installments.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
+
+delivery_timing:
+  type: spark.SparkDataset
+  filepath: data/data_processed/delivery_timing.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+  load_args:
+    options:
+      header: "true"
+  metadata:
+    kedro-viz:
+      layer: intermediate
 
 # Functions to run the model:
 random_forest_model:
-  type: Pickle.PickleDataSet
-  filepath: saved_model/random_forest/random_forest_model.pkl
+  type: pickle.PickleDataset
+  filepath: saved_model/random_forest/random_forest_model.pickle
   versioned: true
   save_args:
     protocol: pickle
+  metadata:
+    kedro-viz:
+      layer: models
 
 binary_logistic_model:
-  type: Pickle.PickleDataSet
-  filepath: saved_model/binary_logistic/binary_logistic_model.pkl
+  type: pickle.PickleDataset
+  filepath: saved_model/binary_logistic/binary_logistic_model.pickle
   versioned: true
   save_args:
     protocol: pickle
+  metadata:
+    kedro-viz:
+      layer: models
+
+
+# Saving my visualization of Confusion Matrix
+confusion_matrix_rfc_viz:
+  type: matplotlib.MatplotlibDataset
+  filepath: data/visualization/confusion_matrix_rfc_viz.png
+  versioned: true
+
+confusion_matrix_blr_viz:
+  type: matplotlib.MatplotlibDataset
+  filepath: data/visualization/confusion_matrix_blr_viz.png
+  versioned: true
