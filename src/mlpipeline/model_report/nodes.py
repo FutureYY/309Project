@@ -1,34 +1,24 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import plotly.express as px  # noqa:  F401
-import plotly.graph_objs as go
-import seaborn as sn
-from .nodes import y_test, y_pred_rfc, y_pred_blr, y_pred_gbc
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
-def confusion_matrix_rfc():
-    confusion_matrix_rfc = confusion_matrix(y_test, y_pred_rfc)
-    
-    sns.set_context('talk')
-    ax = sns.heatmap(confusion_matrix, annot=True, fmt='d')
+def confusion_matrix_rfc(y_test: pd.Series, y_pred_rfc: pd.Series) -> tuple[plt.Figure, pd.DataFrame]:
+    fig, ax = plt.subplots()
+    confusion_rfc = confusion_matrix(y_test, y_pred_rfc)
     labels = ['No', 'Yes']
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(labels)
-    ax.set_ylabel('Actual')
-    ax.set_xlabel('Predicted')
+    cm_df_rfc = pd.DataFrame(confusion_rfc, index=labels, columns=labels)
+    sns.heatmap(cm_df_rfc, annot=True, fmt='d', cmap='Blues', ax=ax)
+    return fig, cm_df_rfc
     
-    return confusion_matrix_rfc
+def confusion_matrix_blr(y_test: pd.Series, y_pred_blr: pd.Series) -> tuple[plt.Figure, pd.DataFrame]:
     
-def confusion_matrix_blr():
-    confusion_matrix_blr = confusion_matrix(y_test, y_pred_blr)    
-    
-    sns.set_context('talk')
-    ax = sns.heatmap(confusion_matrix, annot=True, fmt='d')
+    fig, ax = plt.subplots()
+    confusion_blr = confusion_matrix(y_test, y_pred_blr)
     labels = ['No', 'Yes']
-    ax.set_xticklabels(labels)
-    ax.set_yticklabels(labels)
-    ax.set_ylabel('Actual')
-    ax.set_xlabel('Predicted')
+    cm_df_blr = pd.DataFrame(confusion_blr, index=labels, columns=labels)
+    sns.heatmap(cm_df_blr, annot=True, fmt='d', cmap='Blues', ax=ax)
+    return fig, cm_df_blr  
+
+
     
-    return confusion_matrix_blr

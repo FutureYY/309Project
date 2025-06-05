@@ -1,9 +1,15 @@
 import pandas as pd
-from pyspark.sql.functions import col, round, month, hour, avg, when, radians, sin, cos, sum as spark_sum, atan2, sqrt, lower, trim, min, max, countDistinct, count, sum
+from pyspark.sql.functions import col, round, month, hour, avg, when, radians, sin, cos, sum as spark_sum, atan2, sqrt, lower, trim, min, max, countDistinct, count, sum, lag, datediff
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
+from pyspark.sql.window import Window
+from pyspark.sql import SparkSession
 
+import logging
+logging.getLogger("py4j").setLevel(logging.INFO)
+
+# spark = SparkSession.getActiveSession()
 
 # Extracting the important features [8] and target [1] needed for my model training. 
 def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
@@ -19,42 +25,53 @@ def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame:
     return target_data
 
 
-# calculate time for each order to be delivered, from order purchased to order delivered time
-def time_taken_to_deliver(data):
-  delivered_orders = data.filter(data.order_status == 'delivered')
+# calculate time for each order to be delivered, from 'order_delivered_customer_date' to order_purchase_timestamp'
+def time_taken_to_deliver(df_orders):
+
+  # filter for orders that have 'delivered' status
+  delivered_orders = df_orders.filter(df_orders.order_status == 'delivered')
 
   df_time = delivered_orders.withColumn('delivered_in_days', round((col('order_delivered_customer_date').cast('long') - col('order_purchase_timestamp').cast('long'))/86400))\
             .withColumn('month_of_purchase', month(col('order_purchase_timestamp')))\
             .withColumn('time_of_purchase', hour(col('order_purchase_timestamp')))
 
   df_time = df_time.select("order_id" , "order_purchase_timestamp", "order_delivered_customer_date", "time_of_purchase", "month_of_purchase", "delivered_in_days")
+
   return df_time
 
 
 # sorts orders into fast, normal, slow delivery
-# fast delivery = 1, normal dlivery = 2, slow delivery = 3
-def flag_delivery_speed_flag(df, delivery_time_col="delivered_in_days"):
-  
-    avg_val = df.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+def flag_delivery_speed_relative(df, delivery_time_col="delivered_in_days"):
+    
 
-    df_flagged = df.withColumn(
+    # takes data from "delivered_in_days" from delivery_timing
+    # calculate the average days take to deliver and stores it in avg_days
+    avg_days = df.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+
+    # creates a new dataframe with delivery_speed_flag column
+    # if "delivered_in_days" <= avg_days + 1, delivery_speed_flag == 2, indicating normal delivery
+    # if "delivered_in_days" <= avg_days - 1, delivery_speed_flag == 1, indicating fast delivery
+    # else delivery_speed_flag == 3, indicating slow delivery
+
+    df_flagged_speed = df.withColumn(
             "delivery_speed_flag",
-            when(col(delivery_time_col) <= avg_val - 1, 1)      # for fast delivery timing
-            .when(col(delivery_time_col) <= avg_val + 1, 2)     # for normal delivery timing
+            when(col(delivery_time_col) <= avg_days - 1, 1)      # for fast delivery timing
+            .when(col(delivery_time_col) <= avg_days + 1, 2)     # for normal delivery timing
             .otherwise(3)                                       # for slow delivery timing
         ).select("order_id", "delivered_in_days", "delivery_speed_flag")
 
-    return df_flagged
-
+    return df_flagged_speed
 
 
 # calcualtes distance of customer from seller based on zip code given (in km)
 # distance calculated using the haversine formula
 def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sellers, df_geolocation):
+
     # Step 1: Aggregate average lat/long by zip code
     df_zip_avg_geo = df_geolocation.groupBy("geolocation_zip_code_prefix").agg(
         avg("geolocation_lat").alias("avg_lat"),
-        avg("geolocation_lng").alias("avg_lng") )
+        avg("geolocation_lng").alias("avg_lng")
+    )
 
     # Step 2: Join geolocation to customers
     df_customers_geo = df_customers.join(
@@ -64,7 +81,8 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
     ).select(
         "customer_id", "customer_unique_id", "customer_zip_code_prefix",
         col("avg_lat").alias("customer_latitude"),
-        col("avg_lng").alias("customer_longitude"))
+        col("avg_lng").alias("customer_longitude")
+    )
 
     # Step 3: Join geolocation to sellers
     df_sellers_geo = df_sellers.join(
@@ -74,7 +92,8 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
     ).select(
         "seller_id", "seller_zip_code_prefix",
         col("avg_lat").alias("seller_latitude"),
-        col("avg_lng").alias("seller_longitude"))
+        col("avg_lng").alias("seller_longitude")
+    )
 
     # Step 4: Combine order_items + orders + customer + seller
     df_full = df_order_items.join(
@@ -82,7 +101,8 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
     ).join(
         df_customers_geo, on="customer_id", how="left"
     ).join(
-        df_sellers_geo, on="seller_id", how="left")
+        df_sellers_geo, on="seller_id", how="left"
+    )
 
     # Step 5: Apply Haversine formula
     df_full = df_full.withColumn("cust_lat_rad", radians(col("customer_latitude"))) \
@@ -100,7 +120,7 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
     R_km = 6371.0  # Earth radius in kilometers
 
     df_full = df_full.withColumn("delivery_distance_in_km", round(R_km * c, 2))
-    df_full = df_full.drop("cust_lat_rad", "cust_lon_rad", "sell_lat_rad", "sell_lon_rad", "delta_lat", "delta_lon",)
+    df_full.drop("cust_lat_rad", "cust_lon_rad", "sell_lat_rad", "sell_lon_rad", "delta_lat", "delta_lon")
     df_full = df_full.select("order_id", "customer_id", "seller_id", "delivery_distance_in_km")
 
     # Drop intermediate columns for cleanliness
@@ -115,13 +135,19 @@ def add_high_installment_flag(df_order_payments: DataFrame,
                                installment_col="payment_installments",
                                value_col="payment_value",
                                sequential_col="payment_sequential",
-                               payment_type_col="payment_type") -> DataFrame:
+                               payment_type_col='payment_type') -> DataFrame:
+    """
+    Adds:
+    - 'installment_value': per-installment cost (with outliers capped)
+    - 'high_installment_flag': binary flag based on avg thresholds
+    - 'used_voucher': 1 if payment_type == 'voucher'
+    """
 
     # Step 1: Flag voucher payments
-    df_order_payments = df_order_payments.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
+    df = df_order_payments.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
 
     # Step 2: Calculate raw installment value
-    df_order_payments = df_order_payments.withColumn(
+    df = df.withColumn(
         "installment_value",
         round(when(col(installment_col) > 0, col(value_col) / col(installment_col)).otherwise(0), 2)
     )
@@ -130,7 +156,7 @@ def add_high_installment_flag(df_order_payments: DataFrame,
     # Using approxQuantile for performance on large data
     iqr_bounds = {}
     for field in ["installment_value", installment_col]:
-        q1, q3 = df_order_payments.approxQuantile(field, [0.25, 0.75], 0.05)
+        q1, q3 = df.approxQuantile(field, [0.25, 0.75], 0.05)
         iqr = q3 - q1
         iqr_bounds[field] = {
             "lower": q1 - 1.5 * iqr,
@@ -138,7 +164,7 @@ def add_high_installment_flag(df_order_payments: DataFrame,
         }
 
     # Step 4: Cap outliers based on IQR
-    df_order_payments = df_order_payments.withColumn(
+    df = df.withColumn(
         "installment_value_capped",
         when(col("installment_value") < iqr_bounds["installment_value"]["lower"], iqr_bounds["installment_value"]["lower"])
         .when(col("installment_value") > iqr_bounds["installment_value"]["upper"], iqr_bounds["installment_value"]["upper"])
@@ -147,10 +173,11 @@ def add_high_installment_flag(df_order_payments: DataFrame,
         "payment_installments_capped",
         when(col(installment_col) < iqr_bounds[installment_col]["lower"], iqr_bounds[installment_col]["lower"])
         .when(col(installment_col) > iqr_bounds[installment_col]["upper"], iqr_bounds[installment_col]["upper"])
-        .otherwise(col(installment_col)))
+        .otherwise(col(installment_col))
+    )
 
     # Step 5: Recalculate averages (exclude vouchers and zeros)
-    df_valid = df_order_payments.filter((col(value_col) > 0) & (col("used_voucher") == 0))
+    df_valid = df.filter((col(value_col) > 0) & (col("used_voucher") == 0))
     averages = df_valid.select(
         avg("payment_installments_capped").alias("avg_installments"),
         avg("installment_value_capped").alias("avg_installment_value")
@@ -160,18 +187,19 @@ def add_high_installment_flag(df_order_payments: DataFrame,
     avg_installment_value = averages["avg_installment_value"]
 
     # Step 6: Assign high installment flag using capped values
-    df_result = df_order_payments.withColumn(
+    df_result = df.withColumn(
         "high_installment_flag",
         when(col(sequential_col) == 0, 0)
         .when(
             (col("payment_installments_capped") >= avg_installments) |
             (col("installment_value_capped") <= avg_installment_value),
             1
-        ).otherwise(0))
+        ).otherwise(0)
+    )
 
     df_result = df_result.select("order_id", "payment_type", "payment_sequential", "payment_value", "payment_installments", "installment_value", "installment_value_capped", "high_installment_flag", "used_voucher")
 
-    return df_result
+    return df_result 
 
 
 # get product category in english by combining with df_order_items
@@ -185,6 +213,7 @@ def get_category_in_english(df_order_items, df_products, df_product_category):
         "product_category_name",
         lower(trim("product_category_name"))
     )
+
     df_products_english = df_products_clean.join(
         df_category_clean,
         on="product_category_name",
@@ -222,7 +251,7 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
     top_categories = sales_pd[sales_pd["cumulative_pct"] <= threshold][category_col].tolist()
 
     # Step 4: Convert back to Spark
-    spark = df_category_price.sparkSession
+    spark =df_category_price.sparkSession
     sales_enriched = spark.createDataFrame(sales_pd)
 
     # Step 5: Join stats to original
@@ -250,7 +279,7 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
     model = pipeline.fit(df_labeled)
     df_final = model.transform(df_labeled)
 
-    df_final = df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe")
+    df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe")
 
     return df_final
 
@@ -258,25 +287,34 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
 # find repeated customer based of number of orders
 # if number of order > 1, customer is counted as a repeat buyer
 def finding_repeat_buyers(df_orders, df_customers, df_order_items):
+    """
+    Joins orders with customers and items, then returns:
+    - customer_unique_id
+    - number of unique orders
+    - total purchase value
+    - is_repeat_buyer (1 if >1 order, else 0)
+    """
+
     # Step 1: Join orders with customers to get customer_unique_id
     df_customer_order = df_orders.join(df_customers, on="customer_id", how="inner")
 
+    # Step 2: Join with order_items to get price info
     df_customer_order_items = df_customer_order.join(df_order_items, on="order_id", how="inner")
 
-    # count no. of orders per customer & total value of purchases
+    # Step 3: Aggregate order count and purchase value
     customer_order_counts = df_customer_order_items.groupBy("customer_unique_id") \
         .agg(
-            count("order_id").alias("num_orders"),
+            countDistinct("order_id").alias("num_orders"),
             round(sum("price"), 2).alias("total_purchase_value")
-            )
+        )
 
-    # Step 3: Add is_repeat_buyer flag
+    # Step 4: Add repeat buyer flag
     customer_order_counts = customer_order_counts.withColumn(
         "is_repeat_buyer",
-        (customer_order_counts["num_orders"] > 1).cast("integer"))
+        (col("num_orders") > 1).cast("integer")
+    )
 
     return customer_order_counts
-    
     
 # build the final dataset [with the necessary features to catagorize] to be used for model training    
 def build_final_dataset(
@@ -302,5 +340,5 @@ def build_final_dataset(
                       .join(df_category_price.select("order_id", "category_grouped_ohe", "product_category_name_english", "product_id"), on="order_id", how="left") \
                       .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
                       .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
-
+                      
     return processed_data

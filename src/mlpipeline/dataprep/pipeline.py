@@ -1,7 +1,50 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
-from .nodes import target_dataset, flag_delivery_speed_flag, time_taken_to_deliver, add_order_delivery_distance, add_high_installment_flag 
+from .nodes import target_dataset, flag_delivery_speed_relative, time_taken_to_deliver, add_order_delivery_distance, add_high_installment_flag 
 from .nodes import get_category_in_english, group_categories_by_sales_with_ohe, finding_repeat_buyers, build_final_dataset
+
+import os
+import pyspark
+print(pyspark.__version__)
+from pyspark.sql import SparkSession
+
+# os.environ["SPARK_HOME"] = "C:/Users/Yoshana/spark"
+# os.environ["HADOOP_HOME"] = "C:/Users/Yoshana/hadoop"
+# os.environ["JAVA_HOME"] = "C:/Users/Yoshana/Java/openjdk-11"
+
+# java_home = "C:/Users/Yoshana/Java/openjdk-11"
+# if java_home is None:
+#     print("JAVA_HOME environment variable is not set. Please set it to your Java installation path.")
+# else:
+#     print(f" JAVA_HOME is set to: {java_home}")
+    
+java_home = os.getenv("JAVA_HOME")
+if java_home is None:
+    print("JAVA_HOME environment variable is not set.")
+else:
+    print(f"JAVA_HOME is set to: {java_home}")
+    
+
+spark_home = os.getenv("SPARK_HOME")
+if spark_home is None:
+    print("SPARK_HOME environment variable is not set.")
+else:
+    print(f"SPARK_HOME is set to: {spark_home}")
+    
+hadoop_home = os.getenv("HADOOP_HOME")
+if hadoop_home is None:
+    print("HADOOP_HOME environment variable is not set.")
+else:
+    print(f"HADOOP_HOME is set to: {hadoop_home}")
+    
+try:
+    spark = SparkSession.builder \
+        .appName("Spark_Run") \
+        .config("some.config.key", "some-value") \
+        .getOrCreate()
+    print("✅ SparkSession created successfully.")
+except Exception as e:
+    print(f" Error creating SparkSession: {e}")
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
@@ -14,7 +57,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             
             node(
-                func=flag_delivery_speed_flag,
+                func=flag_delivery_speed_relative,
                 inputs=["df_time", 
                         "params:delivery_time_col"],
                 outputs=["df_flagged"],
@@ -63,7 +106,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs=["customer_order_counts"],
                 name="finding_repeat_buyers_node",
             ),
-            
+
             node(
                 func=build_final_dataset,
                 inputs=["df_orders", 

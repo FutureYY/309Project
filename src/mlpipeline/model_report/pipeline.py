@@ -7,15 +7,15 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=confusion_matrix_rfc,
-                inputs=["target_data"],
-                outputs=["X_train"],
+                inputs=["y_test", "y_pred_rfc"],
+                outputs=["confusion_matrix_rfc_viz"],
                 name="confusion_matrix_rfc_node",
             ),
             
             node(
                 func=confusion_matrix_blr,
-                inputs=["X_train"],
-                outputs=["y_pred_rfc"], 
+                inputs=["y_test", "y_pred_blr"],
+                outputs=["confusion_matrix_blr_viz"], 
                 name="confusion_matrix_blr_node", 
             ), 
         ]
