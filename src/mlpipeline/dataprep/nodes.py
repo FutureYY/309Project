@@ -41,19 +41,23 @@ def time_taken_to_deliver(df_orders):
 
 
 # sorts orders into fast, normal, slow delivery
-def flag_delivery_speed_relative(df, delivery_time_col="delivered_in_days"):
+def flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days"):
     
 
     # takes data from "delivered_in_days" from delivery_timing
     # calculate the average days take to deliver and stores it in avg_days
-    avg_days = df.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+    avg_row = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]
+    avg_days = df_time.select(avg(col(delivery_time_col)).alias("avg_val")).collect()[0]["avg_val"]
+
+    if avg_days is None:
+        raise ValueError(f"The column `{delivery_time_col}` contains only nulls or no data.")
 
     # creates a new dataframe with delivery_speed_flag column
     # if "delivered_in_days" <= avg_days + 1, delivery_speed_flag == 2, indicating normal delivery
     # if "delivered_in_days" <= avg_days - 1, delivery_speed_flag == 1, indicating fast delivery
     # else delivery_speed_flag == 3, indicating slow delivery
 
-    df_flagged_speed = df.withColumn(
+    df_flagged_speed = df_time.withColumn(
             "delivery_speed_flag",
             when(col(delivery_time_col) <= avg_days - 1, 1)      # for fast delivery timing
             .when(col(delivery_time_col) <= avg_days + 1, 2)     # for normal delivery timing
@@ -230,43 +234,39 @@ def get_category_in_english(df_order_items, df_products, df_product_category):
     return df_category_price
 
 
-# group categories that contribute little to the overall percentage sales as 'others'
-# do one hot encoding on all the categories so that the model can process it
 def group_categories_by_sales_with_ohe(df_category_price, category_col="product_category_name_english", value_col="price", threshold=0.8):
-
+    
     # Step 1: Calculate total sales per category
     sales_per_category = df_category_price.groupBy(category_col) \
-        .agg(spark_sum(value_col).alias("total_sales")) \
-        .orderBy("total_sales", ascending=False)
+        .agg(spark_sum(value_col).alias("total_sales"))
 
-    # Step 2: Convert to Pandas to calculate cumulative sales % and rank
-    sales_pd = sales_per_category.toPandas()
-    total_sales = sales_pd["total_sales"].sum()
+    # Step 2: Calculate total overall sales (scalar)
+    total_sales = df_category_price.agg(spark_sum(value_col).alias("overall_total")).collect()[0]["overall_total"]
 
-    sales_pd["category_sales_rank"] = range(1, len(sales_pd) + 1)
-    sales_pd["category_sales_percent"] = sales_pd["total_sales"] / total_sales
-    sales_pd["cumulative_pct"] = sales_pd["category_sales_percent"].cumsum()
+    # Step 3: Calculate percent and cumulative percent
+    window_spec = Window.orderBy(col("total_sales").desc()).rowsBetween(Window.unboundedPreceding, 0)
 
-    # Step 3: Identify top categories
-    top_categories = sales_pd[sales_pd["cumulative_pct"] <= threshold][category_col].tolist()
+    sales_enriched = sales_per_category \
+        .withColumn("category_sales_percent", col("total_sales") / total_sales) \
+        .withColumn("cumulative_pct", spark_sum("category_sales_percent").over(window_spec))
 
-    # Step 4: Convert back to Spark
-    spark =df_category_price.sparkSession
-    sales_enriched = spark.createDataFrame(sales_pd)
+    # Step 4: Extract top categories within threshold
+    top_categories_rows = sales_enriched \
+    .filter(col("cumulative_pct") <= threshold) \
+    .select(category_col) \
+    .collect()
+
+    top_categories = [row[category_col] for row in top_categories_rows]
+
 
     # Step 5: Join stats to original
     df_enriched = df_category_price.join(
-        sales_enriched.select(
-            category_col,
-            "total_sales",
-            "category_sales_rank",
-            "category_sales_percent"
-        ),
+        sales_enriched.select(category_col, "total_sales", "category_sales_percent"),
         on=category_col,
         how="left"
     )
 
-    # Step 6: Add grouped label
+    # Step 6: Label top vs "other"
     df_labeled = df_enriched.withColumn(
         "category_grouped",
         when(col(category_col).isin(top_categories), col(category_col)).otherwise("other")
@@ -277,11 +277,9 @@ def group_categories_by_sales_with_ohe(df_category_price, category_col="product_
     encoder = OneHotEncoder(inputCols=["category_grouped_index"], outputCols=["category_grouped_ohe"])
     pipeline = Pipeline(stages=[indexer, encoder])
     model = pipeline.fit(df_labeled)
-    df_final = model.transform(df_labeled)
+    df_ohe = model.transform(df_labeled)
 
-    df_final.select("product_id","product_category_name_english", "category_grouped", "category_grouped_ohe")
-
-    return df_final
+    return df_ohe
 
 
 # find repeated customer based of number of orders
@@ -316,29 +314,68 @@ def finding_repeat_buyers(df_orders, df_customers, df_order_items):
 
     return customer_order_counts
     
-# build the final dataset [with the necessary features to catagorize] to be used for model training    
 def build_final_dataset(
-    df_orders,
-    df_customers,
-    df_installments,                # from add_high_installment_flag()
-    df_category_price,              # from df_with_category_and_price()
-    delivery_timing,                # from time_taken_to_deliver()
-    df_flagged,                     # from flag_delivery_speed_relative()
-    df_full,                        # from add_order_delivery_distance()
-    customer_order_counts,           # from finding_repeat_buyers()
-    df_order_reviews ) -> pd.DataFrame:
+    df_order_items, df_products, df_product_category, df_orders,
+    df_customers, df_sellers, df_order_payments, df_geolocation, df_order_reviews
 
-    # 1. combine df to get customer_unique_id and order_id
+):
+    df_category_price = get_category_in_english(df_order_items, df_products, df_product_category)
+    df_ohe = group_categories_by_sales_with_ohe(
+    df_category_price,
+    category_col="product_category_name_english",
+    value_col="price",
+    threshold=0.8
+    )
+
+
+    df_full = add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_geolocation, df_order_items)
+
+    df_time = time_taken_to_deliver(df_orders)
+    df_with_speed_flag = flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
+
+    df_installments = add_high_installment_flag(df_order_payments,
+                               installment_col="payment_installments",
+                               value_col="payment_value",
+                               sequential_col="payment_sequential",
+                               payment_type_col="payment_type")
+    customer_order_counts = finding_repeat_buyers(df_orders, df_customers, df_order_items)
+    df_flagged_speed = flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
+    # --------------------------
+    # Customer-level Features
+    # --------------------------
     df_base = df_orders.select("order_id", "customer_id") \
-        .join(df_customers.select("customer_id", "customer_unique_id"), on="customer_id", how="left")
+        .join(df_customers.select("customer_id", "customer_unique_id"), on="customer_id", how="inner")
 
+
+    # --------------------------
+    # Delivery-related Features
+    # --------------------------
     # join delivery_timing (delivered_in_days)
-    processed_data = df_base.join(delivery_timing.select("order_id", "delivered_in_days", "purchase_hour", "month_of_purchase"), on="order_id", how="left") \
-                      .join(df_flagged.select("order_id", "delivery_speed_flag"), on="order_id", how="left") \
-                      .join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="left") \
-                      .join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="left") \
-                      .join(df_category_price.select("order_id", "category_grouped_ohe", "product_category_name_english", "product_id"), on="order_id", how="left") \
-                      .join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="left") \
-                      .join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="left") 
-                      
-    return processed_data
+    df_base = df_base.join(df_time.select("order_id", "delivered_in_days", "time_of_purchase", "month_of_purchase"), on="order_id", how="inner")
+
+    # join delivery_speed_flag
+    df_base = df_base.join(df_flagged_speed.select("order_id", "delivery_speed_flag"), on="order_id", how="inner")
+
+    # join delivery_distance_km
+    df_base = df_base.join(df_full.select("order_id", "delivery_distance_in_km"), on="order_id", how="inner")
+
+
+    # --------------------------
+    # Payment-related Features
+    # --------------------------
+    df_base = df_base.join(df_installments.select("order_id", "installment_value", "high_installment_flag", "used_voucher"), on="order_id", how="inner")
+
+    # join is_repeat_buyer flag
+    df_base = df_base.join(customer_order_counts.select("customer_unique_id", "is_repeat_buyer", "num_orders", "total_purchase_value"), on="customer_unique_id", how="inner")
+
+    # --------------------------
+    # Product-level Features
+    # --------------------------
+    df_base = df_base.join(df_ohe.select("order_id", "category_grouped_ohe", "product_id"), on="order_id", how="inner")
+
+    # --------------------------
+    # Review Score
+    # --------------------------
+    df_final = df_base.join(df_order_reviews.select("order_id", "review_score"), on="order_id", how="inner")
+
+    return df_final
