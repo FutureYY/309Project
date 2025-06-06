@@ -1,0 +1,11 @@
+# spark.master: local[*]
+# spark.app.name: KedroSparkProject
+# spark.sql.shuffle.partitions: 8
+# spark.executor.memory: 2g
+# spark.driver.memory: 2g 
+
+
+
+spark.master: local[*]
+spark.app.name: KedroSparkProject
+spark.sql.shuffle.partitions: 8

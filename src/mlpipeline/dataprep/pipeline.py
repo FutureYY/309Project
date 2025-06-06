@@ -3,20 +3,11 @@ from kedro.pipeline import Pipeline, node, pipeline
 from .nodes import target_dataset, flag_delivery_speed_relative, time_taken_to_deliver, add_order_delivery_distance, add_high_installment_flag 
 from .nodes import get_category_in_english, group_categories_by_sales_with_ohe, finding_repeat_buyers, build_final_dataset
 
+
 import os
 import pyspark
 print(pyspark.__version__)
 from pyspark.sql import SparkSession
-
-# os.environ["SPARK_HOME"] = "C:/Users/Yoshana/spark"
-# os.environ["HADOOP_HOME"] = "C:/Users/Yoshana/hadoop"
-# os.environ["JAVA_HOME"] = "C:/Users/Yoshana/Java/openjdk-11"
-
-# java_home = "C:/Users/Yoshana/Java/openjdk-11"
-# if java_home is None:
-#     print("JAVA_HOME environment variable is not set. Please set it to your Java installation path.")
-# else:
-#     print(f" JAVA_HOME is set to: {java_home}")
     
 java_home = os.getenv("JAVA_HOME")
 if java_home is None:
@@ -37,6 +28,7 @@ if hadoop_home is None:
 else:
     print(f"HADOOP_HOME is set to: {hadoop_home}")
     
+print("if you see this, something is VERY wrong with the spark session")
 try:
     spark = SparkSession.builder \
         .appName("Spark_Run") \
@@ -45,6 +37,7 @@ try:
     print("✅ SparkSession created successfully.")
 except Exception as e:
     print(f" Error creating SparkSession: {e}")
+print("if you see this, something is wrong with the spark session")
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(

@@ -3,13 +3,7 @@ from pyspark.sql.functions import col, round, month, hour, avg, when, radians, s
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
-from pyspark.sql.window import Window
-from pyspark.sql import SparkSession
 
-import logging
-logging.getLogger("py4j").setLevel(logging.INFO)
-
-# spark = SparkSession.getActiveSession()
 
 # Extracting the important features [8] and target [1] needed for my model training. 
 def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
@@ -131,17 +125,11 @@ def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sell
 # clip outliers from per installment value and assigns installment value to the max amount 
 # flags installments with high value as 1, absed on the average threshold
 # adds a column "used_voucher" if voucher is used as opne of the payment type
-def add_high_installment_flag(df_order_payments: DataFrame,
+def add_high_installment_flag(df_order_payments,
                                installment_col="payment_installments",
                                value_col="payment_value",
                                sequential_col="payment_sequential",
-                               payment_type_col='payment_type') -> DataFrame:
-    """
-    Adds:
-    - 'installment_value': per-installment cost (with outliers capped)
-    - 'high_installment_flag': binary flag based on avg thresholds
-    - 'used_voucher': 1 if payment_type == 'voucher'
-    """
+                               payment_type_col="payment_type") -> DataFrame:
 
     # Step 1: Flag voucher payments
     df = df_order_payments.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
