@@ -3,7 +3,10 @@ from pyspark.sql.functions import col, round, month, hour, avg, when, radians, s
 from pyspark.sql import DataFrame
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.ml import Pipeline
+from pyspark.sql.window import Window
+from pyspark.sql import SparkSession
 
+spark = SparkSession.builder.config("spark.master", 'local').getOrCreate()
 
 # Extracting the important features [8] and target [1] needed for my model training. 
 def target_dataset(processed_data: pd.DataFrame) -> pd.DataFrame: 
@@ -129,7 +132,14 @@ def add_high_installment_flag(df_order_payments,
                                installment_col="payment_installments",
                                value_col="payment_value",
                                sequential_col="payment_sequential",
-                               payment_type_col="payment_type") -> DataFrame:
+                               payment_type_col='payment_type',
+                               header=True, inferSchema=True) -> DataFrame:
+    """
+    Adds:
+    - 'installment_value': per-installment cost (with outliers capped)
+    - 'high_installment_flag': binary flag based on avg thresholds
+    - 'used_voucher': 1 if payment_type == 'voucher'
+    """
 
     # Step 1: Flag voucher payments
     df = df_order_payments.withColumn("used_voucher", when(col(payment_type_col) == "voucher", 1).otherwise(0))
