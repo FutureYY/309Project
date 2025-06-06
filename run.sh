@@ -4,7 +4,7 @@
 set -e
 
 echo "====================================="
-echo "🚀 Starting Kedro pipeline execution..."
+echo "Starting Kedro pipeline execution..."
 echo "====================================="
 kedro run
 

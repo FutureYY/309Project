@@ -16,3 +16,5 @@ __pycache__/
 *.json
 *.xlsx
 src/mlpipeline.egg-info/
+.git
+data/
