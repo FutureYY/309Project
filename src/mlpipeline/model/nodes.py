@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 # Split dataset into train, test, and validation sets -> Statified Shuffle Split
 def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     target_column = parameters["target_column"]
-    X = data.drop(columns=target_column)    
+    X = data.drop(target_column)    
     y = data[target_column]
 
     # Split data into train and test first

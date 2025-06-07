@@ -3,128 +3,142 @@
 
 # Definition of the 9 CSV datasets present from Olist 
 
+#Importing the clean orders dataset
+df_orders:
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_orders.csv
+  file_format: csv
+  save_args:
+    index: false
+    inferSchema: true
+    mode: overwrite
+    file_format: csv
+  load_args:
+    header: "true"
+  metadata:
+    kedro-viz:
+      layer: raw
+
+#Importing the clean customers dataset
 df_customers:
-  type: spark.SparkDataSet
-  filepath: data/data_cleaned/cleaned_customer.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_customers.csv
   file_format: csv
   load_args:
-    options:
-      header: "true"
-      inferSchema: "true"
+    header: "true"
+    inferSchema: "true"
   save_args:
     mode: overwrite
+    file_format: csv
   metadata:
     kedro-viz:
       layer: raw
 
+#Importing the clean geolocation dataset
 df_geolocation: #geolocation_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_geolocation.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_geolocation.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: raw
 
+#Importing the clean orders items dataset
 df_order_items: #order_items_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_order_items.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_order_items.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: raw
 
-df_order_payments: #order_payments_dataset
+df_order_payment: #order_payments_dataset
   type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_order_payments.csv
+  filepath: data/02_intermediate/cleaned_order_payments.csv
   file_format: csv
+  load_args:
+    header: "true"
+    inferSchema: "true"
   save_args:
     index: false
-  load_args:
-    options:
-      # header: "true"
-      inferSchema: "true"
+    inferSchema: true
+    mode: overwrite
+    file_format: csv
   metadata:
     kedro-viz:
       layer: raw
 
 df_order_reviews: #order_reviews_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_reviews.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_reviews.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"   
-  metadata:
-    kedro-viz:
-      layer: raw
-
-df_orders: #orders_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_orders.csv
-  file_format: csv
-  save_args:
-    index: false
-    inferSchema: true
-  load_args:
-    options:
-      header: "true"
+    header: "true"   
   metadata:
     kedro-viz:
       layer: raw
 
 df_products: #product_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_product.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_products.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: raw
 
+#Importing the clean sellers dataset
 df_sellers: #sellers_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/cleaned_seller.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/cleaned_seller.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: raw
 
 df_product_category: #product_category_name_translation_dataset
-  type: spark.SparkDataset
-  filepath: data/data_cleaned/product_category_name_translation.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/02_intermediate/product_category_name_translation.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: raw
@@ -132,157 +146,154 @@ df_product_category: #product_category_name_translation_dataset
 
 # Definition of the datasets after processing
 processed_data: # dataset that combines all the cleaned datasets with the features and target
-  type: spark.SparkDataset
-  filepath: data/data_processed/combined_processed_data.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/combined_processed_data.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    header: "true"
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: primary
 
-target_data: # dataset that contains the features and target variable for model training
-  type: spark.SparkDataset
-  filepath: data/data_target/target_data.csv
-  file_format: csv
+target_data:  # dataset that contains the features and target variable for model training
+  type: pandas.CSVDataset
+  filepath: data/04_features/target_data.csv
   save_args:
     index: false
-    inferSchema: true
-  load_args:
-    options:
-      header: "true"
   metadata:
     kedro-viz:
       layer: primary
-
 
 # Definition of the datasets after feature engineering
+#This is the outptut from time_taken_to_deliver function
 df_time: 
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_time.csv
-  file_format: csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/df_time.csv
+  file_format: parquet
   save_args:
-    index: false
     inferSchema: true
+    mode: overwrite
+    header: "true"
   load_args:
-    options:
-      header: "true"
+    header: "true"
+    inferSchema: true
   metadata:
     kedro-viz:
       layer: intermediate
 
-df_flagged: 
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_flagged.csv
+#This is the output from the flag_delivery_speed_relative function
+df_flagged_speed: 
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/df_flagged.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
   
+#This is the output from the add_order_delivery_distance function
 df_full: 
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_full.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/df_full.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
   
+#This is the output from the add_high_installment_flag function  
 df_result: 
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_result.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/df_result.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
+    header: "true"
   load_args:
-    options:
-      header: "true"
-  metadata:
-    kedro-viz:
-      layer: intermediate
-
-df_category_price:
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_category_price.csv
-  file_format: csv
-  save_args:
-    index: false
-    inferSchema: true
-  load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
 
 df_final:
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_final.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: kedro_datasets.data/03_primary/df_final.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
+    header: "true"
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
 
 customer_order_counts:
-  type: spark.SparkDataset
-  filepath: data/data_processed/customer_order_counts.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/customer_order_counts.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
 
 df_installments:
-  type: spark.SparkDataset
-  filepath: data/data_processed/df_installments.csv
+  type: kedro_datasets.spark.SparkDataset
+  filepath: data/03_primary/df_installments.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
 
 delivery_timing:
   type: spark.SparkDataset
-  filepath: data/data_processed/delivery_timing.csv
+  filepath: data/03_primary/delivery_timing.csv
   file_format: csv
   save_args:
     index: false
     inferSchema: true
+    mode: overwrite
+    file_format: csv
+    header: "true"
   load_args:
-    options:
-      header: "true"
+    header: "true"
   metadata:
     kedro-viz:
       layer: intermediate
@@ -294,6 +305,7 @@ random_forest_model:
   versioned: true
   save_args:
     protocol: pickle
+    mode: overwrite
   metadata:
     kedro-viz:
       layer: models
@@ -304,6 +316,7 @@ binary_logistic_model:
   versioned: true
   save_args:
     protocol: pickle
+    mode: overwrite
   metadata:
     kedro-viz:
       layer: models
@@ -314,8 +327,12 @@ confusion_matrix_rfc_viz:
   type: matplotlib.MatplotlibDataset
   filepath: data/visualization/confusion_matrix_rfc_viz.png
   versioned: true
+  save_args:
+    mode: overwrite
 
 confusion_matrix_blr_viz:
   type: matplotlib.MatplotlibDataset
   filepath: data/visualization/confusion_matrix_blr_viz.png
   versioned: true
+  save_args:
+    mode: overwrite

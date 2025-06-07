@@ -25,4 +25,11 @@ binary_logistic_params:
 
 delivery_time_col: "delivered_in_days"
 
+installment_col: "payment_installments"
+value_col: "payment_value"
+sequential_col: "payment_sequential"
+payment_type_col: "payment_type"
 
+category_col: "product_category_name_english" 
+value_colm: "price"
+threshold: 0.8

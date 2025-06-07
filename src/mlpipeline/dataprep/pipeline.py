@@ -1,58 +1,28 @@
 from kedro.pipeline import Pipeline, node, pipeline
-
-from .nodes import target_dataset, flag_delivery_speed_relative, time_taken_to_deliver, add_order_delivery_distance, add_high_installment_flag 
-from .nodes import get_category_in_english, group_categories_by_sales_with_ohe, finding_repeat_buyers, build_final_dataset
-
 import os
-import pyspark
-print(pyspark.__version__)
+from .nodes import target_dataset, flag_delivery_speed_relative, time_taken_to_deliver, add_high_installment_flag  
+from .nodes import add_order_delivery_distance, finding_repeat_buyers, build_final_dataset
+
+
 from pyspark.sql import SparkSession
 
-# os.environ["SPARK_HOME"] = "C:/Users/Yoshana/spark"
-# os.environ["HADOOP_HOME"] = "C:/Users/Yoshana/hadoop"
-# os.environ["JAVA_HOME"] = "C:/Users/Yoshana/Java/openjdk-11"
-
-# java_home = "C:/Users/Yoshana/Java/openjdk-11"
-# if java_home is None:
-#     print("JAVA_HOME environment variable is not set. Please set it to your Java installation path.")
-# else:
-#     print(f" JAVA_HOME is set to: {java_home}")
-    
-java_home = os.getenv("JAVA_HOME")
-if java_home is None:
-    print("JAVA_HOME environment variable is not set.")
-else:
-    print(f"JAVA_HOME is set to: {java_home}")
-    
-
-spark_home = os.getenv("SPARK_HOME")
-if spark_home is None:
-    print("SPARK_HOME environment variable is not set.")
-else:
-    print(f"SPARK_HOME is set to: {spark_home}")
-    
-hadoop_home = os.getenv("HADOOP_HOME")
-if hadoop_home is None:
-    print("HADOOP_HOME environment variable is not set.")
-else:
-    print(f"HADOOP_HOME is set to: {hadoop_home}")
-    
-try:
+def _create_spark_session():
     spark = SparkSession.builder \
-        .appName("Spark_Run") \
-        .config("some.config.key", "some-value") \
+        .appName("ML_App") \
+        .master("local[*]") \
         .getOrCreate()
-    print("✅ SparkSession created successfully.")
-except Exception as e:
-    print(f" Error creating SparkSession: {e}")
+    return spark
+
+SPARK_SESSION = _create_spark_session()
 
 def create_pipeline(**kwargs) -> Pipeline:
+    spark=SPARK_SESSION
     return pipeline(
         [   
             node(
                 func=time_taken_to_deliver,
                 inputs=["df_orders"],
-                outputs=["df_time"],
+                outputs="df_time",
                 name="time_taken_to_deliver_node",
             ),
             
@@ -60,7 +30,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 func=flag_delivery_speed_relative,
                 inputs=["df_time", 
                         "params:delivery_time_col"],
-                outputs=["df_flagged"],
+                outputs="df_flagged",
                 name="flag_delivery_speed_flag_node",
             ),
             
@@ -71,31 +41,15 @@ def create_pipeline(**kwargs) -> Pipeline:
                         "df_customers",
                         "df_sellers", 
                         "df_geolocation"],
-                outputs=["df_full"],
+                outputs="df_full",
                 name="add_order_delivery_distance_node",
             ),
             
             node(
                 func=add_high_installment_flag,
-                inputs=["df_order_payments"],
-                outputs=["df_result"],
+                inputs=["df_order_payment"],
+                outputs="df_result",
                 name="add_high_installment_flag_node",
-            ),
-            
-            node(
-                func=get_category_in_english,
-                inputs=["df_order_items", 
-                        "df_products", 
-                        "df_product_category"],
-                outputs=["df_category_price"],
-                name="get_category_in_english_node",
-            ),
-            
-            node(
-                func=group_categories_by_sales_with_ohe,
-                inputs=["df_category_price"],
-                outputs=["df_final"],
-                name="group_categories_by_sales_with_ohe_node",
             ),
             
             node(
@@ -103,29 +57,29 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs=["df_orders", 
                         "df_customers",
                         "df_order_items"],
-                outputs=["customer_order_counts"],
+                outputs="customer_order_counts",
                 name="finding_repeat_buyers_node",
             ),
 
             node(
                 func=build_final_dataset,
-                inputs=["df_orders", 
+                inputs=["df_order_items", 
+                        "df_products", 
+                        "df_product_category",  
+                        "df_orders", 
                         "df_customers", 
-                        "df_installments", 
-                        "df_category_price", 
-                        "delivery_timing", 
-                        "df_flagged", 
-                        "df_full", 
-                        "customer_order_counts", 
+                        "df_sellers", 
+                        "df_order_payment", 
+                        "df_geolocation", 
                         "df_order_reviews"],
-                outputs=["processed_data"],
+                outputs="processed_data",
                 name="build_final_dataset_node",
             ),
             
             node(
                 func=target_dataset,
                 inputs=["processed_data"],
-                outputs=["target_data"],
+                outputs="target_data",
                 name="target_dataset_node",
             )
         ]

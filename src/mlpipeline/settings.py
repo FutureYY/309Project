@@ -4,7 +4,7 @@ https://docs.kedro.org/en/stable/kedro_project_setup/settings.html."""
 
 # Instantiated project hooks.
 # For example, after creating a hooks.py and defining a ProjectHooks class there, do
-# from 309ml_pipeline.hooks import ProjectHooks
+# from mlpipeline.hooks import ProjectHooks
 # Hooks are executed in a Last-In-First-Out (LIFO) order.
 # HOOKS = (ProjectHooks(),)
 
@@ -48,3 +48,14 @@ CONFIG_LOADER_ARGS = {
 
 # from spark_hooks import ProjectHooks
 # HOOKS = (ProjectHooks(),)
+
+# from pyspark.sql import SparkSession
+
+# def _create_spark_session():
+#     spark = SparkSession.builder \
+#         .appName("ML_App") \
+#         .master("local[*]") \
+#         .getOrCreate()
+#     return spark
+
+# SPARK_SESSION = _create_spark_session()

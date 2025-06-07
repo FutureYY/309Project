@@ -18,5 +18,3 @@ def register_pipelines() -> dict[str, Pipeline]:
         "evaluation": evaluation_pipeline,
         "__default__": default_pipeline,
     }
-    
-    
