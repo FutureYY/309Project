@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook:python-3.11
+FROM jupyter/base-notebook:python-3.9
 
 # Install Java 11
 USER root
@@ -13,9 +13,11 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 USER $NB_UID
 WORKDIR /home/jovyan/work
 
-COPY . .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
 
 EXPOSE 8888
 

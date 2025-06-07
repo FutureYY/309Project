@@ -1,12 +1,12 @@
-numpy>=1.21
-pandas==2.2.3
-scikit-learn>=1.6.1
-matplotlib>=3.5
-seaborn~=0.12.1
+numpy==1.21.6
+pandas==1.5.3
+scikit-learn==1.2.2
+matplotlib==3.8.2
+seaborn==0.12.1
 joblib==1.5.1
-kedro[jupyter]~=0.19.12
-kedro-viz>=6.7.0
-kedro-datasets[pandas-csvdataset, pandas-exceldataset, pandas-parquetdataset, plotly-plotlydataset, plotly-jsondataset, matplotlib-matplotlibwriter]>=3.0
+kedro[jupyter]==0.19.12
+kedro-viz>=6.3.4
+kedro-datasets[pandas-csvdataset,pandas-exceldataset,pandas-parquetdataset,plotly-plotlydataset,plotly-jsondataset,matplotlib-matplotlibwriter,pandas.CSVDataSet,spark.SparkDataSet]>=3.0
 ipython>=8.10
 jupyterlab>=3.0
 notebook
@@ -18,7 +18,4 @@ pyOpenSSL==25.1.0
 redis==6.2.0
 setuptools>=65.0
 pyspark==3.3.1
-matplotlib==3.8.2
 ipykernel
-kedro-datasets[pandas.CSVDataSet]
-kedro-datasets[spark.SparkDataSet]
