@@ -1,12 +1,12 @@
 
 from math import radians, cos, sin, asin, sqrt, atan2
-from pyspark.sql.functions import radians as spark_radians, sin as spark_sin, cos as spark_cos, atan2 as spark_atan2, sqrt as spark_sqrt, round as spark_round, col, avg, radians, sin, cos, atan2, sqrt, when
+from pyspark.sql.functions import radians as spark_radians, sin as spark_sin, cos as spark_cos, atan2 as spark_atan2, sqrt as spark_sqrt, round as spark_round, col, avg, radians, sin, cos, atan2, sqrt, when, lit
 
 
 # calcualtes distance of customer from seller based on zip code given (in km)
 # distance calculated using the haversine formula
 
-def add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_geolocation, df_order_items):
+def add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sellers, df_geolocation):
 
     # Step 1: Aggregate average lat/long by zip code
     df_zip_avg_geo = df_geolocation.groupBy("geolocation_zip_code_prefix").agg(
@@ -54,13 +54,16 @@ def add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_
     df_full = df_full.withColumn("delta_lat", col("sell_lat_rad") - col("cust_lat_rad")) \
                      .withColumn("delta_lon", col("sell_lon_rad") - col("cust_lon_rad"))
 
-    a = sin(col("delta_lat") / 2) ** 2 + \
-        cos(col("cust_lat_rad")) * cos(col("sell_lat_rad")) * sin(col("delta_lon") / 2) ** 2
+    df_full = df_full.withColumn("a",
+        sin(col("delta_lat") / 2) ** 2 +
+        cos(col("cust_lat_rad")) * cos(col("sell_lat_rad")) *
+        sin(col("delta_lon") / 2) ** 2
+    )
 
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    df_full = df_full.withColumn("c", 2 * atan2(sqrt(col("a")), sqrt(1 - col("a"))))
     R_km = 6371.0  # Earth radius in kilometers
 
-    df_full = df_full.withColumn("delivery_distance_in_km", spark_round(R_km * c, 2))
+    df_full = df_full.withColumn("delivery_distance_in_km", spark_round(lit(6371.0) * col("c"), 2))
 
     df_full.drop("cust_lat_rad", "cust_lon_rad", "sell_lat_rad", "sell_lon_rad", "delta_lat", "delta_lon")
     df_full = df_full.select("order_id", "customer_id", "seller_id", "delivery_distance_in_km")
