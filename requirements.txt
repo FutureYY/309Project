@@ -1,8 +1,9 @@
-numpy==1.21.6
+numpy==1.23.5
+scipy==1.9.3
 pandas==1.5.3
 scikit-learn==1.2.2
 matplotlib==3.8.2
-seaborn==0.12.1
+seaborn==0.12.2
 joblib==1.5.1
 kedro[jupyter]==0.19.12
 kedro-viz>=6.3.4
