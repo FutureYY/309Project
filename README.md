@@ -262,6 +262,30 @@ The accuracy was chosen as a metric to evaluate the models because it gives a qu
 Confusion matrix was chosen as it shows a detailed review of how the classification model performs across all classes and error types. The classification model would enable a better idea of the model outcome, and it helps the tuning and optimization process. Thus, displaying a confusion matrix would help us understand the distribution of the classes more efficiently. 
 
 # Results
+Random Forest Classifier:
+The accuracy score was 0.944. 
+The roc_auc score is 0.723
+From the classification report, the precision is 0.95,  recall is 1.0, f1 score is 0.97 and for class 0, while  precision is 0.85, recall is 0.28 , f1 score is 0.42 and for class 1. 
+
+Model has a high performance on Class 0 - (non-repeated buyers).
+Poor recall (0.28) for Class 1, indicating many false negatives.
+ROC AUC = 0.723 suggests the model moderately distinguishes between classes. 
+This suggests that the data is highly imbalanced, having more class 0 than class 1. Our model is more accurate in identifying the non-repeat buyers. 
+
+The confusion matrix suggests that the model is able to identify the (0) more than (1), not-repeated buyers then repeated buyers. This is due to the imbalance of dataset during training since more not-repeated buyers are present. 
+
+Binary Logistic Regression:
+The accuracy score was 0.927. 
+The roc_auc score is 0.541. 
+From the classification report, the precision is 0.92,  recall is 1.0, f1 score is 0.96 and for class 0, while  precision is 0, recall is 0, f1 score is 0 and for class 1.
+
+This model performs worse for minority class.
+Class 1 is completely ignored by the model.
+ROC AUC = 0.541 is barely above random chance (0.5), suggesting poor separation capability. This suggests that there is a class imbalance in the dataset since Class 0 dominates the dataset, and the model is not able to scale it to be trained. 
+
+The confusion matrix suggests that the model is able to identify the (0) more than (1), not-repeated buyers then repeated buyers. This is due to the imbalance of dataset during training since more not-repeated buyers are present. 
+
+The Random Forest Classifier outperforms Binary Logistic Regression in handling the imbalance and offers better identification of repeat buyers. While it still shows poor recall for Class 1, it is more capable of distinguishing between the classes and provides a stronger baseline for improvement. Addressing class imbalance through resampling or class weighting is recommended to further enhance model performance.
 
 ## Other Consideration
 
