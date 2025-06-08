@@ -178,8 +178,28 @@ Refer to troubleshooting tips if encountered problem
 ## Flow of pipeline
 
 ## Choice of machine learning model
+The Machine Learning Models Chosen: Random Forest Classifier and Binary Logistic Regression. 
+
+Random forest model was chosen as it has an excellent accuracy which is robust to overfitting. It is able to handle large datasets and interpretable via feature importance. The random forest model is known as the collection of decision trees that work together to make predictions. Thus, random Forest was selected as our primary model due to its robustness and consistent performance across metrics.
+
+Binary Logistic Regression is a fast and interpretable statistical algorithm, often used as a strong baseline model in classification tasks. It is particularly useful for identifying key contributing features due to its straightforward coefficient interpretation. The model helps analyze the relationship between independent variables and the dependent variable, especially when this relationship is approximately linear in the log-odds space.
 
 ## Model evaluation
+The model evaluation metrics chosen for both the models were accuracy score, classification report [ F1-score, recall, precision and support ] and ROC-AUC score. 
+
+Definition of the Chosen Metrics: 
+Accuracy is the percentage of correct hits, measuring the overall performance. 
+F1-score is a weighted average of precision and recall. 
+Recall measures the prediction performance of the actual positive instances. 
+Precision measures the accuracy over the predicted positive instances, indicating the percentage of wrongly identified as positive.
+Support refers to the number of samples in each class. Support uses the ground truth labels, which represents the actual classes of each sample. 
+Confusion Matrix is used to measure how well a classification model is performing. 
+
+The accuracy was chosen as a metric to evaluate the models because it gives a quick overview of the model’s overall performance where i can easily classify if my model is doing well or it would need hyperparameter tuning. F1-score was chosen as a metric to evaluate the models as it combines precision and recall into a single metric which offers a balanced view of both false positives and negatives. The recall was chosen as a metric to evaluate the model as it measures the model’s ability to correctly identify actual positive cases. Precision was chosen as a metric to evaluate the model as it indicates how many of the positively predicted instances were actually correct.
+
+Confusion matrix was chosen as it shows a detailed review of how the classification model performs across all classes and error types. The classification model would enable a better idea of the model outcome, and it helps the tuning and optimization process. Thus, displaying a confusion matrix would help us understand the distribution of the classes more efficiently. 
+
+# Results
 
 ## Other Consideration
 
