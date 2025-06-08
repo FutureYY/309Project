@@ -14,8 +14,59 @@ Wong Yen Yi 230666M - 230666M@mymail.nyp.edu.sg
 
 Yoshana Magendran 230591E - 230591E@mymail.nyp.edu.sg
 
-## Programming language, librabries and packages used
+## Programming language, libraries and packages used
 
+1. Python 3.9 should be installed to run jupyter notebook https://www.python.org/downloads/release/python-3911/
+2. Code Editor with Python 
+3. Docker Desktop https://www.docker.com/products/docker-desktop
+4. Anaconda prompt for faster processing speed https://www.anaconda.com/docs/getting-started/anaconda/install
+
+To run Pyspark 3.3.1, Java 8 needs to be downloaded. Here are the steps to do so:
+1. Download Java 8 for windows here (any 1): https://www.oracle.com/java/technologies/downloads/#java8   https://adoptium.net/en-GB/temurin/releases/?version=8&os=any&arch=any
+2. Save the file into path given by system ("C:\Java\jre1.8.0_441")
+3. Search for “Edit system environment variables”. (Administrator Rights)
+4. Select “Environment Variables” located at the bottom right of the pop-up.
+5. Under “System Variables”, click on “New” and enter the following:
+
+   Variable name: JAVA_HOME 
+	Variable value: (enter the path to your java 8 program file)
+   Variable value should look like this -> C:\Java\jre1.8.0_441
+
+6. Click ‘OK’ after entering the above information
+7. Locate ‘Path’ under system variables and click on it.
+8. Still in system variables, press on “Edit”, then “New”.
+9. Enter the following: %JAVA_HOME%\bin and click on it after you create it.
+10. Then, move %JAVA_HOME%\bin all the way to the top of the list.
+11. After this, pip install pyspark in terminal and you will be able to run the eda!
+
+To run Kedro-pipeline, Java 8. Spark 3.5.6 and Hadoop 3.0.1 needs to be downloaded. Here are the steps so for Spark and Hadoop:
+1. Download Spark for windows here: 
+   https://www.apache.org/dyn/closer.lua/spark/spark-3.5.6/spark-3.5.6-bin-hadoop3-scala2.13.tgz
+   Fork the github repository for Hadoop from here: [hadoop - 3.0.1bin]
+   https://github.com/cdarlint/winutils/tree/master
+2. Extract the repository into your local drive. Please save this specific folder, [hadoop - 3.0.1/bin] into your (‘C:\Hadoop’) folder. 
+3. Save the downloaded Spark file into (‘C:\Spark’)
+4. Search for “Edit system environment variables”. (Administrator Rights)
+5. Select “Environment Variables” located at the bottom right of the pop-up.
+6. Under “System Variables”, click on “New” and enter the following:
+
+	Variable name: SPARK_HOME
+	Variable value: (enter the path to your spark program file)
+	Variable name: Hadoop_HOME
+	Variable value: (enter the path to your hadoop program file)
+
+7. Click ‘OK’ after entering the above information 
+8. Locate ‘Path’ under system variables and click on it.
+9. Still in system variables, press on “Edit”, then “New”. 
+10. Enter the following: %SPARK_HOME%\bin and %HADOOP_HOME%\bin, and click on it after you create it.
+11. Then, move the files all the way to the top of the list after Java. 
+
+USE this websites for Reference: 
+https://medium.com/@marcelopedronidasilva/how-to-install-and-run-pyspark-locally-integrated-with-vscode-via-jupyter-notebook-on-windows-ff209ac8621f
+
+
+
+Libraries needed will be installed in later part
 
 
 ## EDA Key findings
@@ -200,8 +251,6 @@ The accuracy was chosen as a metric to evaluate the models because it gives a qu
 Confusion matrix was chosen as it shows a detailed review of how the classification model performs across all classes and error types. The classification model would enable a better idea of the model outcome, and it helps the tuning and optimization process. Thus, displaying a confusion matrix would help us understand the distribution of the classes more efficiently. 
 
 # Results
-
-## Other Consideration
 
 ## Other Consideration
 
