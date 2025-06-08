@@ -1,8 +1,23 @@
 # Use an official Python base image
 FROM python:3.9-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
+    PATH="/usr/lib/jvm/java-11-openjdk-amd64/bin:$PATH"
+
+
 # Set working directory in the container
 WORKDIR /app
+
+# Install Java 11 and essential tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-11-jdk \
+    curl \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy files into the container
 COPY run.sh .
@@ -17,5 +32,6 @@ RUN chmod +x run.sh
 # Install dependencies if applicable
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Default command: execute the run script
+COPY . .
+
 CMD ["bash", "./run.sh"]
