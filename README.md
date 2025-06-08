@@ -262,6 +262,7 @@ The accuracy was chosen as a metric to evaluate the models because it gives a qu
 Confusion matrix was chosen as it shows a detailed review of how the classification model performs across all classes and error types. The classification model would enable a better idea of the model outcome, and it helps the tuning and optimization process. Thus, displaying a confusion matrix would help us understand the distribution of the classes more efficiently. 
 
 # Results
+![Alt text](images/Results.png)
 Random Forest Classifier:
 The accuracy score was 0.944. 
 The roc_auc score is 0.723
