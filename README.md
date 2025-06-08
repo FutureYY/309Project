@@ -187,7 +187,14 @@ python -m ipykernel install --user --name=edavenv --display-name "Python (EDAven
 Open the code editor and find the ipykernel created to run eda
 
 
-To run the pipeline on Linux without Docker:
+To run the pipeline without Docker:
+
+Conda 
+```
+kedro run
+```
+
+Linux
 ```
 bash run.sh
 ```
@@ -227,6 +234,10 @@ Refer to troubleshooting tips if encountered problem
 
 
 ## Flow of pipeline
+
+Dataprep - feature engineering, combining the features, processed to extract the features used for model training. 
+Model - split the model, train random forest classifier model, train binary logistic regression model, evaluate the models. 
+Model_report - display the confusion matrix of the results in kedro visualization, and display a png in the visualisation folder. 
 
 ## Choice of machine learning model
 The Machine Learning Models Chosen: Random Forest Classifier and Binary Logistic Regression. 
