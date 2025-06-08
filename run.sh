@@ -6,22 +6,16 @@ set -e
 echo "====================================="
 echo "Starting Kedro pipeline execution..."
 echo "====================================="
-kedro run
-
-echo "====================================="
-echo "Splitting data into train/test..."
-echo "====================================="
-python src/pipeline/split_data.py
+kedro run --pipeline dataprep
 
 echo "====================================="
 echo "Training the model..."
 echo "====================================="
-python src/model/train_model.py
+kedro run --pipeline model
 
 echo "====================================="
 echo "Evaluating the model..."
 echo "====================================="
-python src/model/evaluate_model.py
+kedro run --pipeline evaluation
 
 echo "All steps completed successfully!"
-
