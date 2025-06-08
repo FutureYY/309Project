@@ -6,16 +6,16 @@ set -e
 echo "====================================="
 echo "Starting Kedro pipeline execution..."
 echo "====================================="
-kedro run --pipeline dataprep
+kedro run --pipeline "dataprep"
 
 echo "====================================="
 echo "Training the model..."
 echo "====================================="
-kedro run --pipeline model
+kedro run --pipeline "model"
 
 echo "====================================="
 echo "Evaluating the model..."
 echo "====================================="
-kedro run --pipeline evaluation
+kedro run --pipeline "evaluation"
 
 echo "All steps completed successfully!"

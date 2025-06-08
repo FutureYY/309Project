@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, Tuple
 import pandas as pd
-from sklearn.model_selection import StratifiedShuffleSplit, KFold, GridSearchCV
+from sklearn.model_selection import StratifiedShuffleSplit, StratifiedKFold, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
@@ -12,8 +12,9 @@ warnings.filterwarnings("ignore")
 
 # Split dataset into train, test, and validation sets -> Statified Shuffle Split
 def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    data = data.dropna()
     target_column = parameters["target_column"]
-    X = data.drop(target_column)    
+    X = data.drop(columns=[target_column])    
     y = data[target_column]
 
     # Split data into train and test first
@@ -39,38 +40,67 @@ def split_data(data: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataF
         
 # Train and Predictions -> Random Forest Classifier    
 def model_train_RFC(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series, random_forest_params: dict) -> pd.Series:
-    classifier_rfc = GridSearchCV(RandomForestClassifier(**random_forest_params))
+    model_params = random_forest_params["model_params_rfc"]
+    param_grid = random_forest_params["param_grid_rfc"]
+    classifier_rfc = GridSearchCV(
+        estimator=RandomForestClassifier(**model_params),
+        param_grid=param_grid,
+        error_score='raise',
+        cv=StratifiedKFold(n_splits=5))
     random_forest_model = classifier_rfc.fit(X_train, y_train)
     
-    y_pred_rfc = classifier_rfc.predict(X_test)
-    return y_pred_rfc, random_forest_model
+    y_pred_rfc = random_forest_model.predict(X_test)
+    best_model_rfc = classifier_rfc.best_estimator_
+    return y_pred_rfc, best_model_rfc, random_forest_model
     
     
 # Train and Predictions -> Binary Logistic Regression    
 def model_train_BLR(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series, binary_logistic_params: dict) -> pd.Series:
-    classifier_blr = GridSearchCV(LogisticRegression(**binary_logistic_params))
+    model_params = binary_logistic_params["model_params_blr"]
+    param_grid = binary_logistic_params["param_grid_blr"]
+    classifier_blr = GridSearchCV(
+        estimator=LogisticRegression(**model_params),
+        param_grid=param_grid,
+        error_score='raise',
+        scoring='roc_auc')
     binary_logistic_model = classifier_blr.fit(X_train, y_train)
     
-    y_pred_blr = classifier_blr.predict(X_test)
-    return y_pred_blr, binary_logistic_model
+    y_pred_blr = binary_logistic_model.predict(X_test)
+    best_model_blr = classifier_blr.best_estimator_
+    return y_pred_blr, best_model_blr, binary_logistic_model
 
 
 # Function to report the evalutation metrics of the models    
-def report_evaluation(y_pred_rfc: pd.Series, y_pred_blr: pd.Series, 
-                      y_test: pd.Series, X_test: pd.DataFrame, 
-                      binary_logistic_model, random_forest_model):
+def report_evaluation(y_pred_rfc: pd.Series, 
+                      y_pred_blr: pd.Series, 
+                      y_test: pd.Series, 
+                      X_test: pd.DataFrame, 
+                      X_val: pd.DataFrame, 
+                      y_val: pd.Series,
+                      best_model_blr, 
+                      best_model_rfc):
     
     # Evalutation metrics -> Random Forest Classifier
     accuracy_rfc = accuracy_score(y_test, y_pred_rfc)
-    ROC_AUC_rfc = roc_auc_score(y_test, random_forest_model.predict_proba(X_test)[:, 1])
+    ROC_AUC_rfc = roc_auc_score(y_test, best_model_rfc.predict_proba(X_test)[:, 1])
     classification_report_rfc = classification_report(y_test, y_pred_rfc)
-
+    y_pred_val_rfc = best_model_rfc.predict(X_val)
+    accuracy_val_rfc = accuracy_score(y_val, y_pred_val_rfc)
+    
     # Evalutation metrics -> Binary Logistic Regression
     accuracy_blr = accuracy_score(y_test, y_pred_blr)
-    ROC_AUC_blr = roc_auc_score(y_test, binary_logistic_model.predict_proba(X_test)[:, 1])
+    ROC_AUC_blr = roc_auc_score(y_test, best_model_blr.predict_proba(X_test)[:, 1])
     classification_report_blr = classification_report(y_test, y_pred_blr)
-     
+    
+    y_pred_val_blr = best_model_blr.predict(X_val)
+    accuracy_val_blr = accuracy_score(y_val, y_pred_val_blr)
+        
     # the logger info here is to display the evaluations results of the models
     logger = logging.getLogger(__name__)
+    logger.info("=========== Evaluation Results of Random Forest Classifier ===========")
     logger.info(f"[Random Forest Classifier] Accuracy={accuracy_rfc:.3f}, ROC_AUC={ROC_AUC_rfc:.3f} and Classification_Report= {classification_report_rfc}")
+    logger.info(f"[Random Forest Classifier] Validation Accuracy={accuracy_val_rfc:.3f}")
+    
+    logger.info("=========== Evaluation Results of Random Forest Classifier ===========")
     logger.info(f"[Binary Logistic Regression] Accuracy={accuracy_blr:.3f}, ROC_AUC={ROC_AUC_blr:.3f} and Classification_Report= {classification_report_blr}")
+    logger.info(f"[Binary Logistic Regression] Validation Accuracy={accuracy_val_blr:.3f}")

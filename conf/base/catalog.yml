@@ -302,10 +302,9 @@ delivery_timing:
 random_forest_model:
   type: pickle.PickleDataset
   filepath: saved_model/random_forest/random_forest_model.pickle
-  versioned: true
+  versioned: true 
   save_args:
-    protocol: pickle
-    mode: overwrite
+    protocol: 5
   metadata:
     kedro-viz:
       layer: models
@@ -315,8 +314,7 @@ binary_logistic_model:
   filepath: saved_model/binary_logistic/binary_logistic_model.pickle
   versioned: true
   save_args:
-    protocol: pickle
-    mode: overwrite
+    protocol: 5
   metadata:
     kedro-viz:
       layer: models
@@ -324,15 +322,21 @@ binary_logistic_model:
 
 # Saving my visualization of Confusion Matrix
 confusion_matrix_rfc_viz:
-  type: matplotlib.MatplotlibDataset
+  type: matplotlib.MatplotlibWriter
   filepath: data/visualization/confusion_matrix_rfc_viz.png
   versioned: true
-  save_args:
-    mode: overwrite
+
+confusion_matrix_rfc_df:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/confusion_matrix_rfc_df.csv
+  versioned: true
 
 confusion_matrix_blr_viz:
-  type: matplotlib.MatplotlibDataset
+  type: matplotlib.MatplotlibWriter
   filepath: data/visualization/confusion_matrix_blr_viz.png
   versioned: true
-  save_args:
-    mode: overwrite
+
+confusion_matrix_blr_df:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/confusion_matrix_blr_df.csv
+  versioned: true
