@@ -8,6 +8,9 @@ WORKDIR /app
 COPY run.sh .
 COPY requirements.txt .
 
+# Convert Windows-style line endings to Unix 
+RUN sed -i 's/\r$//' run.sh
+
 # Make the script executable
 RUN chmod +x run.sh
 
