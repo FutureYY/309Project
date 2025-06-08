@@ -18,7 +18,7 @@ def build_final_dataset(
     )
 
 
-    df_full = add_order_delivery_distance(df_orders, df_ohe, df_customers, df_sellers, df_geolocation, df_order_items)
+    df_full = add_order_delivery_distance(df_orders, df_order_items, df_customers, df_sellers, df_geolocation)
 
     df_time = time_taken_to_deliver(df_orders)
     df_with_speed_flag = flag_delivery_speed_relative(df_time, delivery_time_col="delivered_in_days")
