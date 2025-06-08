@@ -72,41 +72,108 @@ c. “month of purchase” (different seasons may affect delivery time)
 “High_installment_flag” is also strongly correlated with “installment_value” which could be because it was derived from installment_value itself. 
 
 
-## Instructions for executing the pipeline
+## Instructions for setting up for the project
 
-1. Run Ubuntu or any Linux terminal on your device
+1. Open linux terminal/anaconda prompt to run  
+
 2. Path the file using cd
 
+Use double quotes “ if the path has spaces
+
+Windows
 ```
-cd /mnt/file_path
+cd "C:\Users\Documents\Project"
 
 ```
-e.g. cd /mnt/c/Users/YourName/Documents
+
+Linux 
+```
+cd "/home/username/Documents/Project"
+
+```
 
 3. Create a virtual environment
    
+Conda
 ```
-python -m venv venv
+conda create -n venv python=3.9
 ```
+Linux (install python if needed)
+```
+sudo apt install python3.9 python3.9-venv
+python3.9 -m venv venv
 
-4. Activate virtual environment
- 
 ```
-venv/bin/activate
+4. Activate virtual environment 
+
+Conda
+```
+conda activate venv
+```
+Linux
+```
+source venv/bin/activate
 ```
 
 5. Install the dependencies by running
 
 ```
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+```
+```
+pip install -r requirements.txt --prefer-binary --no-cache-dir
+
+```
+6. Start Docker Desktop in the background
+
+Note: You don't need Docker to run EDA in the file — it's optional.
+
+To install the EDA kernel for Jupyter file to run in code editor:
+```
+python -m ipykernel install --user --name=edavenv --display-name "Python (EDAvenv)"
 ```
 
-6. Run the project using 
+Open the code editor and find the ipykernel created to run eda
 
+
+To run the pipeline on Linux without Docker:
 ```
 bash run.sh
 ```
+
+Docker file for 1. JupyterLab and 2. Run.sh
+1. Build JupyterLab Docker Image and run it 
+```
+docker build -t jupyter-image -f Dockerfile.jupyter . 
+```
+This may take around 45 minutes as there is a lot to download from our dependencies
+
+Running Docker image created
+```
+docker run -d -p 8888:8888 jupyter-image
+```
+Check if docker file is running, then open a new tab on the browser to run local host
+```
+docker ps
+```
+```
+http://localhost:8888/lab?
+```
+
+2. Build Pipeline Docker Image and run it
+```
+docker build -t kedro-image -f Dockerfile.runner .
+```
+
+Pipeline Docker Image
+```
+docker run --rm kedro-image
+```
+Run.sh and the pipeline will start running
+
+
+Refer to troubleshooting tips if encountered problem
+
 
 ## Flow of pipeline
 
@@ -116,80 +183,44 @@ bash run.sh
 
 ## Other Consideration
 
+## Other Consideration
 
+Troubleshooting tips
 
-
-
-## Rules and guidelines
-
-In order to get the best out of the template:
-
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a data engineering convention
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
-
-## How to test your Kedro project
-
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
+If powershell block script execution for conda
 ```
-pytest
+Set-ExecutionPolicy RemoteSigned -Scope Process
 ```
 
-You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
-
-
-## Project dependencies
-
-To see and update the dependency requirements for your project use `requirements.txt`. You can install the project requirements with `pip install -r requirements.txt`.
-
-[Further information about project dependencies](https://docs.kedro.org/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
-
-## How to work with Kedro and notebooks
-
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `context`, 'session', `catalog`, and `pipelines`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `pip install -r requirements.txt` you will not need to take any extra steps before you use them.
-
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
+If Docker is taking a lot of space
 
 ```
-pip install jupyter
+# Remove all stopped containers
+docker container prune
+
+# Remove all unused volumes
+docker volume prune
+
+# Remove unused images
+docker image prune
+
+# Remove unused network
+docker network prune
+
+­# Remove all unused containers, volumes, images (in this order)
+docker system prune
+```
+If port 8888 is used, try other ports
+```
+docker run -d -p 8899:8888 jupyter-image
+```
+if run.sh: $'\r': command not found: convert to unix(LF) or a code editor
+```
+dos2unix run.sh
 ```
 
-After installing Jupyter, you can start a local notebook server:
 
-```
-kedro jupyter notebook
-```
 
-### JupyterLab
-To use JupyterLab, you need to install it:
 
-```
-pip install jupyterlab
-```
 
-You can also start JupyterLab:
 
-```
-kedro jupyter lab
-```
-
-### IPython
-And if you want to run an IPython session:
-
-```
-kedro ipython
-```
-
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can use tools like [`nbstripout`](https://github.com/kynan/nbstripout). For example, you can add a hook in `.git/config` with `nbstripout --install`. This will run `nbstripout` before anything is committed to `git`.
-
-> *Note:* Your output cells will be retained locally.
-
-## Package your Kedro project
-
-[Further information about building project documentation and packaging your project](https://docs.kedro.org/en/stable/tutorial/package_a_project.html)
