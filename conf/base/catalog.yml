@@ -6,7 +6,7 @@
 #Importing the clean orders dataset
 df_orders:
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_orders.csv
+  filepath: data_1/02_intermediate/cleaned_orders.csv
   file_format: csv
   save_args:
     index: false
@@ -22,7 +22,7 @@ df_orders:
 #Importing the clean customers dataset
 df_customers:
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_customers.csv
+  filepath: data_1/02_intermediate/cleaned_customers.csv
   file_format: csv
   load_args:
     header: "true"
@@ -37,7 +37,7 @@ df_customers:
 #Importing the clean geolocation dataset
 df_geolocation: #geolocation_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_geolocation.csv
+  filepath: data_1/02_intermediate/cleaned_geolocation.csv
   file_format: csv
   save_args:
     index: false
@@ -53,7 +53,7 @@ df_geolocation: #geolocation_dataset
 #Importing the clean orders items dataset
 df_order_items: #order_items_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_order_items.csv
+  filepath: data_1/02_intermediate/cleaned_order_items.csv
   file_format: csv
   save_args:
     index: false
@@ -68,7 +68,7 @@ df_order_items: #order_items_dataset
 
 df_order_payment: #order_payments_dataset
   type: spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_order_payments.csv
+  filepath: data_1/02_intermediate/cleaned_order_payments.csv
   file_format: csv
   load_args:
     header: "true"
@@ -84,7 +84,7 @@ df_order_payment: #order_payments_dataset
 
 df_order_reviews: #order_reviews_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_reviews.csv
+  filepath: data_1/02_intermediate/cleaned_reviews.csv
   file_format: csv
   save_args:
     index: false
@@ -99,7 +99,7 @@ df_order_reviews: #order_reviews_dataset
 
 df_products: #product_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_products.csv
+  filepath: data_1/02_intermediate/cleaned_products.csv
   file_format: csv
   save_args:
     index: false
@@ -115,7 +115,7 @@ df_products: #product_dataset
 #Importing the clean sellers dataset
 df_sellers: #sellers_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/cleaned_seller.csv
+  filepath: data_1/02_intermediate/cleaned_seller.csv
   file_format: csv
   save_args:
     index: false
@@ -130,7 +130,7 @@ df_sellers: #sellers_dataset
 
 df_product_category: #product_category_name_translation_dataset
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/02_intermediate/product_category_name_translation.csv
+  filepath: data_1/02_intermediate/product_category_name_translation.csv
   file_format: csv
   save_args:
     index: false
@@ -147,7 +147,7 @@ df_product_category: #product_category_name_translation_dataset
 # Definition of the datasets after processing
 processed_data: # dataset that combines all the cleaned datasets with the features and target
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/combined_processed_data.csv
+  filepath: data_1/03_primary/combined_processed_data.csv
   file_format: csv
   save_args:
     index: false
@@ -163,7 +163,7 @@ processed_data: # dataset that combines all the cleaned datasets with the featur
 
 target_data:  # dataset that contains the features and target variable for model training
   type: pandas.CSVDataset
-  filepath: data/04_features/target_data.csv
+  filepath: data_1/04_features/target_data.csv
   save_args:
     index: false
   metadata:
@@ -174,7 +174,7 @@ target_data:  # dataset that contains the features and target variable for model
 #This is the outptut from time_taken_to_deliver function
 df_time: 
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/df_time.csv
+  filepath: data_1/03_primary/df_time.csv
   file_format: parquet
   save_args:
     inferSchema: true
@@ -190,7 +190,7 @@ df_time:
 #This is the output from the flag_delivery_speed_relative function
 df_flagged_speed: 
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/df_flagged.csv
+  filepath: data_1/03_primary/df_flagged.csv
   file_format: csv
   save_args:
     index: false
@@ -206,7 +206,7 @@ df_flagged_speed:
 #This is the output from the add_order_delivery_distance function
 df_full: 
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/df_full.csv
+  filepath: data_1/03_primary/df_full.csv
   file_format: csv
   save_args:
     index: false
@@ -222,7 +222,7 @@ df_full:
 #This is the output from the add_high_installment_flag function  
 df_result: 
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/df_result.csv
+  filepath: data_1/03_primary/df_result.csv
   file_format: csv
   save_args:
     index: false
@@ -238,7 +238,7 @@ df_result:
 
 df_final:
   type: kedro_datasets.spark.SparkDataset
-  filepath: kedro_datasets.data/03_primary/df_final.csv
+  filepath: data_1/03_primary/df_final.csv
   file_format: csv
   save_args:
     index: false
@@ -254,7 +254,7 @@ df_final:
 
 customer_order_counts:
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/customer_order_counts.csv
+  filepath: data_1/03_primary/customer_order_counts.csv
   file_format: csv
   save_args:
     index: false
@@ -269,7 +269,7 @@ customer_order_counts:
 
 df_installments:
   type: kedro_datasets.spark.SparkDataset
-  filepath: data/03_primary/df_installments.csv
+  filepath: data_1/03_primary/df_installments.csv
   file_format: csv
   save_args:
     index: false
@@ -284,7 +284,7 @@ df_installments:
 
 delivery_timing:
   type: spark.SparkDataset
-  filepath: data/03_primary/delivery_timing.csv
+  filepath: data_1/03_primary/delivery_timing.csv
   file_format: csv
   save_args:
     index: false
