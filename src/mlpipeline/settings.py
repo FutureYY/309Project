@@ -49,13 +49,3 @@ CONFIG_LOADER_ARGS = {
 # from spark_hooks import ProjectHooks
 # HOOKS = (ProjectHooks(),)
 
-# from pyspark.sql import SparkSession
-
-# def _create_spark_session():
-#     spark = SparkSession.builder \
-#         .appName("ML_App") \
-#         .master("local[*]") \
-#         .getOrCreate()
-#     return spark
-
-# SPARK_SESSION = _create_spark_session()

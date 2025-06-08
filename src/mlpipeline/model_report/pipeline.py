@@ -8,16 +8,16 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=confusion_matrix_rfc,
                 inputs=["y_test", "y_pred_rfc"],
-                outputs=["confusion_matrix_rfc_viz"],
+                outputs=["confusion_matrix_rfc_viz",  "confusion_matrix_rfc_df"],
                 name="confusion_matrix_rfc_node",
             ),
             
-            node(
-                func=confusion_matrix_blr,
-                inputs=["y_test", "y_pred_blr"],
-                outputs=["confusion_matrix_blr_viz"], 
-                name="confusion_matrix_blr_node", 
-            ), 
+        node(
+            func=confusion_matrix_blr,
+            inputs=["y_test", "y_pred_blr"],
+            outputs=["confusion_matrix_blr_viz", "confusion_matrix_blr_df"],  # <- Add second output
+            name="confusion_matrix_blr_node",
+        ),
         ]
     )
 
