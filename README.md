@@ -57,11 +57,11 @@ The bar graph shows how frequent customers place orders, from their last order t
 On the contrary, there are little orders made within 1 week, indicating that the platform does not sell products/services that are consumable on a daily/weekly basis. With a higher concentration of buyers reordering during the 3-12 months period, it shows that long-tem engagement would be much more effective in retaining customers than focusing on swift purchases, due to the nature of products being sold on this platform.
 
 #### Repurchase Behaviour of Voucher Users
-![Alt text](images\Repurchase Behavior of Voucher Users.png)
+![Alt text](images\Repurchase_Behavior_of_Voucher_Users.png)
 The bar graph shows the number of voucher users who are repeat and non-repeat buyers. The majority of voucher users are non-repeat, while only a small percentage of voucher users are repeat buyers. This shows that vouchers are effective in bring customers to the platform to purchase items, but are ineffective in retaining them, as many are non-repeat buyers.
 
 #### Correlation matrix
-![Alt text](images\correlation matrix.png)
+![Alt text](images\correlation_matrix.png)
 With the red box having a strong positive correlation, most of the features are white (no correlation). Initially, I did one-hot encoding on product categories aas our model could only take in numerical values. However, I decided to remove most of the features which were the one-hot encoded categories as they were mostly white. 
 
 Features like “delivered_in_days” had a strong correlation with: 
